@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#8B5CF6">
+  <title>Smart Dashboard — Вход</title>
+  <link rel="stylesheet" href="../src/styles/variables.css">
+  <link rel="stylesheet" href="../src/styles/reset.css">
+  <link rel="stylesheet" href="../src/styles/main.css">
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--bg);
+    }
+    .auth-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px var(--shadow);
+    }
+    .auth-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-form input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+    .auth-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 16px;
+      margin: 16px 0;
+      background: var(--gradient);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .auth-switch {
+      text-align: center;
+      margin-top: 16px;
+      color: var(--text-muted);
+    }
+    .auth-switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .mascot-small {
+      text-align: center;
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="mascot-small">🦊</div>
+      <h1 class="auth-title">Smart Dashboard</h1>
+      
+      <form class="auth-form" id="authForm">
+        <input type="text" id="name" placeholder="Ваше имя" style="display:none;">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <div id="error" class="error"></div>
+        <button type="submit" class="auth-btn">Войти</button>
+      </form>
+      
+      <div class="auth-switch">
+        Нет аккаунта? <a href="#" id="switchToRegister">Зарегистрироваться</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../src/core/authService.js"></script>
+  <script>
+    AuthService.init();
+    
+    // Redirect if already logged in
+    if (AuthService.isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
+
+    const form = document.getElementById('authForm');
+    const errorEl = document.getElementById('error');
+    const nameInput = document.getElementById('name');
+    const switchBtn = document.getElementById('switchToRegister');
+    
+    let isRegister = false;
+
+    switchBtn.onclick = (e) => {
+      e.preventDefault();
+      isRegister = !isRegister;
+      nameInput.style.display = isRegister ? 'block' : 'none';
+      form.querySelector('.auth-btn').textContent = isRegister ? 'Зарегистрироваться' : 'Войти';
+      switchBtn.textContent = isRegister ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться';
+      errorEl.textContent = '';
+    };
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      errorEl.textContent = '';
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (isRegister) {
+        const name = nameInput.value;
+        if (!name) {
+          errorEl.textContent = 'Введите имя';
+          return;
+        }
+        const result = AuthService.register(name, email, password);
+        if (result.success) {
+          window.location.href = 'index.html';
+        } else {
+          errorEl.textContent = result.error;
+        }
+      } else {
+        const result = AuthService.login(email, password);
+        if (result.success) {
+          window.location.href = 'index.html';
+        } else {
+          errorEl.textContent = result.error;
+        }
+      }
+    };
+  </script>
+</body>
+</html>

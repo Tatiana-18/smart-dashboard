@@ -3,7 +3,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Core Services
   AuthService.init();
   DataService.init();
-  UIContainer.init();
+  MascotModule.init();
+  
+  // Check authentication
+  if (!AuthService.isAuthenticated() && !window.location.href.includes('login.html')) {
+    window.location.href = 'public/login.html';
+    return;
+  }
+  
+  // Apply dark theme if saved
+  const user = AuthService.getUser();
+  if (user?.settings?.darkTheme) {
+    document.body.classList.add('dark-theme');
+  }
   
   // Initialize Router
   Router.init();
@@ -12,11 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
   TasksModule.init();
   NotesModule.init();
   TrackerModule.init();
+  ProfileModule.init();
   
   // Setup logout
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    AuthService.logout();
+    if (confirm('Выйти из аккаунта?')) {
+      AuthService.logout();
+    }
   });
+  
+  // Request notification permission
+  if (user?.settings?.notifications !== false) {
+    NotificationService.requestPermission();
+  }
   
   console.log('✨ Smart Dashboard initialized!');
 });

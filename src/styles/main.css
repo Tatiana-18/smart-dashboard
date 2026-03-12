@@ -647,3 +647,48 @@ input:checked + .toggle-slider:before { transform: translateX(34px); }
   .btn:hover { opacity: 0.9; }
   .filter-btn:hover { border-color: var(--primary); }
 }
+
+/* === 🌓 DARK THEME === */
+body.dark-theme {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --text-main: #f1f1f1;
+  --text-muted: #a0a0a0;
+  --shadow: rgba(139, 92, 246, 0.3);
+}
+
+body.dark-theme .header,
+body.dark-theme .nav-bar,
+body.dark-theme .card,
+body.dark-theme .stat-card,
+body.dark-theme .badge-item {
+  background: var(--surface);
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.dark-theme .filter-btn {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text-main);
+}
+
+body.dark-theme .mascot {
+  background: linear-gradient(135deg, #1a1a3e 0%, #2a1a3e 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+body.dark-theme .progress-container {
+  background: #2a2a4e;
+}
+
+body.dark-theme .toggle-slider {
+  background-color: #3a3a5e;
+}
+
+/* Smooth transition for theme switch */
+body, .card, .header, .nav-bar, .mascot, 
+.filter-btn, .stat-card, .badge-item {
+  transition: background-color 0.3s ease, 
+              border-color 0.3s ease, 
+              color 0.3s ease;
+}

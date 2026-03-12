@@ -1,0 +1,33 @@
+/* === 📋 TASKS MODULE STYLES === */
+#tasksList {
+  min-height: 200px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar { display: none; }
+
+.filter-btn {
+  padding: clamp(14px, 4.5vw, 18px) clamp(24px, 6vw, 32px);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: clamp(16px, 5vw, 18px);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+  background: var(--gradient);
+  color: white;
+  border-color: transparent;
+}

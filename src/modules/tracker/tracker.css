@@ -1,0 +1,18 @@
+/* === 📊 TRACKER MODULE STYLES === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(20px, 6.5vw, 26px);
+  padding: 0 20px 20px;
+  margin-bottom: 20px;
+}
+
+.badges {
+  display: flex;
+  gap: 12px;
+  padding: 20px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.badges::-webkit-scrollbar { display: none; }

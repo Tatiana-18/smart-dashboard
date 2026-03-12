@@ -1,0 +1,13 @@
+{
+  "name": "smart-dashboard",
+  "version": "1.0.0",
+  "description": "PWA приложение для продуктивности",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "npx http-server public",
+    "deploy": "gh-pages -d public"
+  },
+  "keywords": ["pwa", "dashboard", "productivity"],
+  "author": "Student",
+  "license": "MIT"
+}

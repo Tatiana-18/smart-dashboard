@@ -1,0 +1,649 @@
+/* === 🧱 HEADER === */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 20px;
+  background: var(--surface);
+  border-bottom: 2px solid #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: max(28px, env(safe-area-inset-top));
+}
+.logo {
+  font-size: clamp(36px, 11vw, 44px);
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.profile-btn {
+  width: clamp(80px, 20vw, 96px);
+  height: clamp(80px, 20vw, 96px);
+  border-radius: 50%;
+  background: var(--gradient);
+  color: white;
+  font-weight: 700;
+  font-size: clamp(28px, 8vw, 36px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+/* === 🎭 MASCOT (ЛИСИЧКА 🦊) === */
+.mascot {
+  text-align: center;
+  padding: clamp(40px, 12vw, 56px);
+  background: linear-gradient(135deg, #FFF0F5 0%, #F5F3FF 100%);
+  margin: 24px 20px;
+  border-radius: 20px;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+}
+.mascot-emoji {
+  font-size: clamp(120px, 32vw, 160px);
+  margin-bottom: 20px;
+  display: block;
+  animation: bounce 2s infinite;
+  filter: drop-shadow(0 8px 16px rgba(139, 92, 246, 0.3));
+}
+.mascot-text {
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: clamp(28px, 8vw, 36px);
+  line-height: 1.3;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+/* === 📦 CARDS === */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: clamp(28px, 8vw, 34px);
+  margin: 0 20px 16px;
+  box-shadow: 0 4px 20px var(--shadow);
+  border-left: 4px solid var(--primary);
+  transition: transform 0.2s ease;
+}
+.card:hover { transform: translateY(-1px); }
+.card:active { transform: scale(0.99); }
+.card.completed { 
+  border-left-color: var(--success); 
+  opacity: 0.9; 
+}
+.card-title { 
+  font-weight: 700; 
+  margin-bottom: 12px; 
+  font-size: clamp(22px, 6.5vw, 26px);
+  word-break: break-word;
+}
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: clamp(16px, 5vw, 18px);
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.points { 
+  color: var(--secondary); 
+  font-weight: 700; 
+  font-size: clamp(18px, 5.5vw, 20px);
+  white-space: nowrap;
+}
+
+/* === 🔘 BUTTONS === */
+.btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 18px auto;
+  padding: clamp(22px, 6.5vw, 28px);
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: clamp(20px, 6vw, 24px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn:hover { opacity: 0.95; }
+.btn:active { transform: scale(0.97); }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+/* === 🧭 BOTTOM NAVIGATION === */
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 2px solid #f1f5f9;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px 0;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px var(--shadow);
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  width: 100%;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  color: var(--text-muted);
+  font-size: clamp(20px, 6vw, 24px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 0;
+  gap: 10px;
+}
+.nav-item.active { 
+  color: var(--primary); 
+  font-weight: 700;
+}
+.nav-item:active { transform: scale(0.95); }
+.nav-icon {
+  width: clamp(56px, 15vw, 68px);
+  height: clamp(56px, 15vw, 68px);
+  margin-bottom: 8px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* === 📱 MODULES === */
+.module { display: none; }
+.module.active { display: block; }
+
+/* === 📋 FILTERS === */
+.filters {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 20px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.filters::-webkit-scrollbar { display: none; }
+.filter-btn {
+  padding: clamp(14px, 4.5vw, 18px) clamp(24px, 6vw, 32px);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: clamp(16px, 5vw, 18px);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.filter-btn.active {
+  background: var(--gradient);
+  color: white;
+  border-color: transparent;
+}
+
+/* === 📝 NOTES === */
+.note-content {
+  font-size: clamp(18px, 5.5vw, 22px);
+  color: var(--text-main);
+  margin: 12px 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* === 📈 STATS === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(20px, 6.5vw, 26px);
+  padding: 0 20px 20px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: clamp(26px, 8vw, 34px);
+  text-align: center;
+  box-shadow: 0 3px 10px var(--shadow);
+}
+.stat-value {
+  font-size: clamp(40px, 12vw, 48px);
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+  display: block;
+}
+.stat-label {
+  font-size: clamp(16px, 5vw, 20px);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* === 🏆 BADGES === */
+.badges {
+  display: flex;
+  gap: 12px;
+  padding: 20px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.badges::-webkit-scrollbar { display: none; }
+.badge-item {
+  background: var(--surface);
+  padding: clamp(18px, 5.5vw, 24px) clamp(20px, 6vw, 28px);
+  border-radius: 12px;
+  text-align: center;
+  min-width: 90px;
+  box-shadow: 0 3px 10px var(--shadow);
+  flex-shrink: 0;
+}
+.badge-icon {
+  font-size: clamp(32px, 9vw, 40px);
+  display: block;
+  margin-bottom: 12px;
+}
+.badge-name {
+  font-size: clamp(14px, 4.5vw, 17px);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* === ☑️ CHECKBOX === */
+.checkbox {
+  width: clamp(32px, 9vw, 38px);
+  height: clamp(32px, 9vw, 38px);
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 18px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.checkbox.checked {
+  background: var(--success);
+  border-color: var(--success);
+}
+.checkbox svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+  display: none;
+}
+.checkbox.checked svg { display: block; }
+
+/* === 📊 PROGRESS === */
+.progress-container {
+  background: #e2e8f0;
+  border-radius: 8px;
+  height: 16px;
+  margin: 18px 0;
+  overflow: hidden;
+}
+.progress-fill {
+  background: var(--gradient);
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.6s ease;
+}
+
+/* === 👤 PROFILE === */
+.profile-header {
+  text-align: center;
+  padding: clamp(36px, 11vw, 54px) 20px;
+}
+.profile-avatar {
+  width: clamp(120px, 30vw, 144px);
+  height: clamp(120px, 30vw, 144px);
+  border-radius: 50%;
+  background: var(--gradient);
+  color: white;
+  font-size: clamp(44px, 12vw, 56px);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 32px var(--shadow);
+}
+.profile-name {
+  font-size: clamp(30px, 9vw, 40px);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.profile-email {
+  font-size: clamp(18px, 5.5vw, 22px);
+  color: var(--text-muted);
+}
+.stat-row, .setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(20px, 6vw, 28px) 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: clamp(18px, 5.5vw, 22px);
+}
+.stat-row:last-child, .setting-item:last-child { border-bottom: none; }
+
+/* === 🔘 TOGGLE === */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: clamp(72px, 19vw, 84px);
+  height: clamp(38px, 11vw, 46px);
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #e2e8f0;
+  border-radius: 50px;
+  transition: 0.3s;
+}
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: clamp(32px, 9vw, 40px);
+  width: clamp(32px, 9vw, 40px);
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+input:checked + .toggle-slider { background: var(--gradient); }
+input:checked + .toggle-slider:before { transform: translateX(34px); }
+
+/* ============================================ */
+/* 📱 MEDIA QUERIES — МОБИЛЬНАЯ ВЕРСИЯ */
+/* ============================================ */
+
+/* iPhone SE и меньше (до 374px) */
+@media (max-width: 374px) {
+  body {
+    padding-bottom: 130px;
+  }
+}
+
+/* iPhone 14/15/16 (375px - 427px) */
+@media (min-width: 375px) and (max-width: 427px) {
+  body {
+    padding-bottom: 140px;
+  }
+}
+
+/* iPhone Pro Max и большие телефоны (428px - 767px) */
+@media (min-width: 428px) and (max-width: 767px) {
+  body {
+    padding-bottom: 145px;
+  }
+}
+
+/* Планшеты (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body {
+    padding-bottom: 150px;
+  }
+  .main-content {
+    max-width: 768px;
+  }
+}
+
+/* ============================================ */
+/* 💻 ДЕСКТОП — ОРИГИНАЛЬНЫЕ РАЗМЕРЫ (1024px+) */
+/* ============================================ */
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+  
+  body {
+    padding-bottom: 90px;
+  }
+  
+  .main-content {
+    max-width: 900px;
+  }
+  
+  /* HEADER — оригинальные размеры */
+  .header {
+    padding: 20px 24px;
+    padding-top: 20px;
+  }
+  .logo {
+    font-size: 20px;
+  }
+  .profile-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  
+  /* MASCOT — оригинальные размеры */
+  .mascot {
+    padding: 24px;
+    margin: 20px 24px;
+  }
+  .mascot-emoji {
+    font-size: 56px;
+    margin-bottom: 12px;
+  }
+  .mascot-text {
+    font-size: 16px;
+  }
+  @keyframes bounce {
+    50% { transform: translateY(-10px); }
+  }
+  
+  /* CARDS — оригинальные размеры */
+  .card {
+    padding: 20px;
+    margin: 0 24px 12px;
+  }
+  .card-title {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+  .card-meta {
+    font-size: 13px;
+  }
+  .points {
+    font-size: 14px;
+  }
+  
+  /* BUTTONS — оригинальные размеры */
+  .btn {
+    width: calc(100% - 48px);
+    margin: 20px auto;
+    padding: 16px;
+    font-size: 16px;
+  }
+  
+  /* NAVIGATION — оригинальные размеры */
+  .nav-bar {
+    padding: 12px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  .nav-item {
+    padding: 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .nav-icon {
+    width: 26px;
+    height: 26px;
+    margin-bottom: 4px;
+  }
+  
+  /* FILTERS — оригинальные размеры */
+  .filters {
+    padding: 0 24px 16px;
+    padding-bottom: 8px;
+  }
+  .filter-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  /* NOTES — оригинальные размеры */
+  .note-content {
+    font-size: 15px;
+    margin: 8px 0;
+  }
+  
+  /* STATS — оригинальные размеры */
+  .stats-grid {
+    gap: 16px;
+    padding: 0 24px 20px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    padding: 20px;
+  }
+  .stat-value {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-size: 13px;
+  }
+  
+  /* BADGES — оригинальные размеры */
+  .badges {
+    padding: 16px 24px;
+  }
+  .badge-item {
+    padding: 12px 16px;
+    min-width: 80px;
+  }
+  .badge-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .badge-name {
+    font-size: 11px;
+  }
+  
+  /* CHECKBOX — оригинальные размеры */
+  .checkbox {
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+  }
+  .checkbox svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* PROGRESS — оригинальные размеры */
+  .progress-container {
+    height: 12px;
+    margin: 16px 0;
+  }
+  
+  /* PROFILE — оригинальные размеры */
+  .profile-header {
+    padding: 40px 24px;
+  }
+  .profile-avatar {
+    width: 96px;
+    height: 96px;
+    font-size: 36px;
+    margin: 0 auto 16px;
+  }
+  .profile-name {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .profile-email {
+    font-size: 15px;
+  }
+  .stat-row, .setting-item {
+    padding: 16px 0;
+    font-size: 15px;
+  }
+  
+  /* TOGGLE — оригинальные размеры */
+  .toggle {
+    width: 52px;
+    height: 28px;
+  }
+  .toggle-slider:before {
+    height: 22px;
+    width: 22px;
+  }
+}
+
+/* Landscape режим на мобильных */
+@media (max-height: 500px) and (orientation: landscape) {
+  body { 
+    padding-bottom: 100px; 
+  }
+  .mascot { display: none; }
+  .nav-bar { padding: 12px 0; }
+  .nav-item { 
+    font-size: 14px; 
+    padding: 8px 6px;
+  }
+  .nav-icon { 
+    width: 32px; 
+    height: 32px; 
+  }
+  .header { 
+    padding: 16px 20px; 
+  }
+  .logo { 
+    font-size: 24px; 
+  }
+}
+
+/* iOS Safe Areas */
+@supports (padding: max(0px)) {
+  .header {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  .nav-bar {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* === 🍎 iOS FIXES === */
+@supports (-webkit-touch-callout: none) {
+  .btn, .filter-btn, .nav-item, .checkbox, input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* === 🖱️ HOVER (только десктоп) === */
+@media (hover: hover) and (min-width: 1024px) {
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--shadow); }
+  .btn:hover { opacity: 0.9; }
+  .filter-btn:hover { border-color: var(--primary); }
+}

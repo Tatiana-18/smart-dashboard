@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#8B5CF6" />
   <meta name="description" content="Smart Dashboard PWA - Tasks, Notes and Tracker" />
   
-  <!-- PWA Manifest (в той же папке) -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json" />
   
-  <!-- Icons (в той же папке или подпапке) -->
+  <!-- Icons -->
   <link rel="icon" type="image/png" href="./favicon.ico" />
   <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
   
@@ -18,15 +18,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Smart Dashboard" />
   
-  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ (src на уровне выше) -->
-  <link rel="stylesheet" href="../src/styles/reset.css" />
-  <link rel="stylesheet" href="../src/styles/variables.css" />
-  <link rel="stylesheet" href="../src/styles/main.css" />
+  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ (src внутри public) -->
+  <link rel="stylesheet" href="./src/styles/reset.css" />
+  <link rel="stylesheet" href="./src/styles/variables.css" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
   
   <!-- Module Styles -->
-  <link rel="stylesheet" href="../src/modules/tasks/tasks.css" />
-  <link rel="stylesheet" href="../src/modules/notes/notes.css" />
-  <link rel="stylesheet" href="../src/modules/tracker/tracker.css" />
+  <link rel="stylesheet" href="./src/modules/tasks/tasks.css" />
+  <link rel="stylesheet" href="./src/modules/notes/notes.css" />
+  <link rel="stylesheet" href="./src/modules/tracker/tracker.css" />
   
   <title>Smart Dashboard</title>
 </head>
@@ -120,35 +120,35 @@
     </div>
   </nav>
 
-  <!-- Scripts - Core (src на уровне выше) -->
-  <script src="../src/core/router.js"></script>
-  <script src="../src/core/authService.js"></script>
-  <script src="../src/core/dataService.js"></script>
-  <script src="../src/core/cacheService.js"></script>
-  <script src="../src/core/notifications.js"></script>
-  <script src="../src/core/uiContainer.js"></script>
-  <script src="../src/core/mascot.js"></script>
+  <!-- Scripts - Core -->
+  <script src="./src/core/router.js"></script>
+  <script src="./src/core/authService.js"></script>
+  <script src="./src/core/dataService.js"></script>
+  <script src="./src/core/cacheService.js"></script>
+  <script src="./src/core/notifications.js"></script>
+  <script src="./src/core/uiContainer.js"></script>
+  <script src="./src/core/mascot.js"></script>
   
   <!-- Scripts - Modules -->
-  <script src="../src/modules/tasks/tasksDummyData.js"></script>
-  <script src="../src/modules/tasks/tasks.js"></script>
-  <script src="../src/modules/tasks/tasksUI.js"></script>
-  <script src="../src/modules/notes/notesDummyData.js"></script>
-  <script src="../src/modules/notes/notes.js"></script>
-  <script src="../src/modules/notes/notesUI.js"></script>
-  <script src="../src/modules/tracker/dummyLeaderboard.js"></script>
-  <script src="../src/modules/tracker/tracker.js"></script>
-  <script src="../src/modules/tracker/trackerUI.js"></script>
-  <script src="../src/modules/profile/profile.js"></script>
+  <script src="./src/modules/tasks/tasksDummyData.js"></script>
+  <script src="./src/modules/tasks/tasks.js"></script>
+  <script src="./src/modules/tasks/tasksUI.js"></script>
+  <script src="./src/modules/notes/notesDummyData.js"></script>
+  <script src="./src/modules/notes/notes.js"></script>
+  <script src="./src/modules/notes/notesUI.js"></script>
+  <script src="./src/modules/tracker/dummyLeaderboard.js"></script>
+  <script src="./src/modules/tracker/tracker.js"></script>
+  <script src="./src/modules/tracker/trackerUI.js"></script>
+  <script src="./src/modules/profile/profile.js"></script>
   
   <!-- Main Script -->
-  <script src="../src/main.js"></script>
+  <script src="./src/main.js"></script>
 
   <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('../src/serviceWorker.js')
+        navigator.serviceWorker.register('./src/serviceWorker.js')
           .then(registration => {
             console.log('✅ Service Worker registered:', registration);
           })

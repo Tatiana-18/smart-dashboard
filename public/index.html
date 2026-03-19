@@ -4,19 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8B5CF6">
-  <meta name="description" content="Smart Dashboard - твой персональный трекер продуктивности">
+  <meta name="description" content="Smart Dashboard PWA">
   
   <title>Smart Dashboard</title>
   
   <!-- PWA Manifest -->
-  <link rel="manifest" href="/public/manifest.json">
-  <link rel="icon" type="image/png" href="icons/icon-192x192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
   
-  <!-- Стили -->
+  <!-- Стили — ИСПОЛЬЗУЙ ОТНОСИТЕЛЬНЫЕ ПУТИ -->
   <link rel="stylesheet" href="../src/styles/variables.css">
   <link rel="stylesheet" href="../src/styles/reset.css">
   <link rel="stylesheet" href="../src/styles/main.css">
+  
+  <!-- Стили модулей -->
   <link rel="stylesheet" href="../src/modules/tasks/tasks.css">
   <link rel="stylesheet" href="../src/modules/notes/notes.css">
   <link rel="stylesheet" href="../src/modules/tracker/tracker.css">
@@ -28,62 +30,19 @@
     <div class="profile-btn" id="profileBtn">Т</div>
   </header>
 
-  <!-- Mascot (Лисичка 🦊) -->
+  <!-- Mascot -->
   <div class="mascot" id="mascot">
     <span class="mascot-emoji">🦊</span>
     <div class="mascot-text">Привет! Готов к новым достижениям?</div>
   </div>
 
-  <!-- Main Content Container -->
+  <!-- Main Content -->
   <div class="main-content">
-    <!-- Tasks Module -->
-    <section id="tasks" class="module active">
-      <div class="filters">
-        <button class="filter-btn active">Все</button>
-        <button class="filter-btn">🏠 Бытовые</button>
-        <button class="filter-btn">💧 Здоровье</button>
-        <button class="filter-btn">⭐ Привычки</button>
-      </div>
-
-      <div id="tasksList"></div>
-
-      <button class="btn" id="addTaskBtn">+ Добавить задачу</button>
-
-      <div class="card" id="streakCard">
-        <div style="text-align:center;font-weight:600;color:var(--secondary);">
-          🔥 СТРИК: 0 дней подряд!
-        </div>
-      </div>
-    </section>
-
-    <!-- Notes Module -->
-    <section id="notes" class="module">
-      <div id="notesList"></div>
-      <button class="btn" id="addNoteBtn">+ Новая заметка</button>
-    </section>
-
-    <!-- Tracker Module -->
-    <section id="tracker" class="module">
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="card" id="progressCard"></div>
-      <div class="card" id="activityCard"></div>
-      <div id="badgesList" class="badges"></div>
-    </section>
-
-    <!-- Profile Module -->
-    <section id="profile" class="module">
-      <div class="profile-header">
-        <div class="profile-avatar" id="profileAvatar">Т</div>
-        <div class="profile-name" id="profileName">Татьяна</div>
-        <div class="profile-email" id="profileEmail">user@example.com</div>
-      </div>
-      <div class="card" id="profileStats"></div>
-      <div class="card" id="profileSettings"></div>
-      <button class="btn btn-outline" id="logoutBtn">Выйти из аккаунта</button>
-    </section>
+    <!-- Здесь будет контент модулей -->
+    <div id="app"></div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- Navigation -->
   <nav class="nav-bar">
     <div class="nav-item active" data-target="tasks">
       <svg class="nav-icon" viewBox="0 0 24 24">
@@ -111,13 +70,16 @@
     </div>
   </nav>
 
-  <!-- Скрипты -->
+  <!-- Scripts -->
   <script src="../src/core/router.js"></script>
   <script src="../src/core/authService.js"></script>
   <script src="../src/core/dataService.js"></script>
   <script src="../src/core/cacheService.js"></script>
   <script src="../src/core/notifications.js"></script>
   <script src="../src/core/uiContainer.js"></script>
+  <script src="../src/core/mascot.js"></script>
+  
+  <!-- Modules -->
   <script src="../src/modules/tasks/tasksDummyData.js"></script>
   <script src="../src/modules/tasks/tasks.js"></script>
   <script src="../src/modules/tasks/tasksUI.js"></script>
@@ -127,12 +89,15 @@
   <script src="../src/modules/tracker/dummyLeaderboard.js"></script>
   <script src="../src/modules/tracker/tracker.js"></script>
   <script src="../src/modules/tracker/trackerUI.js"></script>
+  <script src="../src/modules/profile/profile.js"></script>
+  
+  <!-- Main -->
   <script src="../src/main.js"></script>
 
-  <!-- Service Worker Registration -->
+  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('../serviceWorker.js')
+      navigator.serviceWorker.register('../src/serviceWorker.js')
         .then(reg => console.log('SW registered:', reg))
         .catch(err => console.log('SW error:', err));
     }

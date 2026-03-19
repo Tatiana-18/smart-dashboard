@@ -19,13 +19,13 @@ const Router = {
     
     // Если не авторизован и не на странице входа — редирект на login
     if (!this.isAuthenticated && !window.location.href.includes('login.html')) {
-      window.location.href = '/login.html';
+      window.location.href = '/smart-dashboard/login.html';
       return;
     }
     
     // Если авторизован и на странице входа — редирект на главную
     if (this.isAuthenticated && window.location.href.includes('login.html')) {
-      window.location.href = '/index.html';
+      window.location.href = '/smart-dashboard/';
       return;
     }
     
@@ -77,7 +77,7 @@ const Router = {
 
     // Проверяем авторизацию
     if (this.routes[route].requiresAuth && !this.isAuthenticated) {
-      window.location.href = '/login.html';
+      window.location.href = '/smart-dashboard/login.html';
       return;
     }
 
@@ -190,7 +190,7 @@ const Router = {
     this.isAuthenticated = AuthService.isAuthenticated();
     
     if (!this.isAuthenticated && !window.location.href.includes('login.html')) {
-      window.location.href = '/login.html';
+      window.location.href = '/smart-dashboard/login.html';
       return false;
     }
     
@@ -202,7 +202,7 @@ const Router = {
     AuthService.logout();
     this.isAuthenticated = false;
     this.currentRoute = 'login';
-    window.location.href = '/login.html';
+    window.location.href = '/smart-dashboard/login.html';
   },
 
   // === Восстановление последнего маршрута ===

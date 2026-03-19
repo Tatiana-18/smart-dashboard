@@ -57,7 +57,7 @@ const AuthService = {
     localStorage.removeItem('smartdash_current_user');
     
     // ✅ ПРАВИЛЬНЫЙ ПУТЬ для GitHub Pages (public/ = корень сайта)
-    window.location.href = '/index.html';
+    window.location.href = '/smart-dashboard/index.html';
     // Или просто:
     // window.location.href = '/';
   },

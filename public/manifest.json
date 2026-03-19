@@ -2,11 +2,12 @@
   "name": "Smart Dashboard",
   "short_name": "SmartDash",
   "description": "Твой персональный трекер продуктивности",
-  "start_url": "/smart-dashboard/public/index.html",
+  "start_url": "/public/index.html",
   "display": "standalone",
   "background_color": "#F9FAFB",
   "theme_color": "#8B5CF6",
   "orientation": "portrait-primary",
+  "offline_enabled": true,
   "icons": [
     {
       "src": "icons/icon-192x192.png",

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#8B5CF6">
+  <title>Нет подключения — Smart Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #1F2937;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .emoji {
+      font-size: 80px;
+      margin-bottom: 20px;
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #1F2937;
+    }
+
+    p {
+      font-size: 16px;
+      color: #6B7280;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .info {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #E5E7EB;
+      font-size: 14px;
+      color: #9CA3AF;
+    }
+
+    .mascot {
+      font-size: 48px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="emoji">🦊</span>
+    
+    <h1>Нет подключения к интернету</h1>
+    
+    <div class="mascot">😔</div>
+    
+    <p>
+      Лисичка грустит...<br>
+      Проверьте соединение и попробуйте снова
+    </p>
+
+    <button class="btn" onclick="window.location.reload()">
+      🔄 Попробовать снова
+    </button>
+
+    <div class="info">
+      💡 Ваши задачи и заметки сохранены<br>
+      и синхронизируются при подключении
+    </div>
+  </div>
+
+  <script>
+    // Автоматическая проверка восстановления связи
+    window.addEventListener('online', () => {
+      if (navigator.onLine) {
+        setTimeout(() => {
+          if (confirm('✅ Подключение восстановлено! Перезагрузить страницу?')) {
+            window.location.reload();
+          }
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>

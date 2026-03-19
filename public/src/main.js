@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Check authentication
   if (!AuthService.isAuthenticated() && !window.location.href.includes('login.html')) {
-    window.location.href = 'public/login.html';
+    window.location.href = '/login.html';
     return;
   }
   

@@ -5,11 +5,15 @@ const TrackerModule = {
     this.renderActivityCalendar();
     this.renderBadges();
     this.renderProgress();
+    this.renderLevelProgress();
   },
 
   update() {
     this.updateStats();
     this.renderActivityCalendar();
+    this.renderBadges();
+    this.renderProgress();
+    this.renderLevelProgress();
   },
 
   updateStats() {
@@ -47,7 +51,7 @@ const TrackerModule = {
     }
   },
 
-  // ✅ ИСПРАВЛЕННЫЙ КАЛЕНДАРЬ АКТИВНОСТИ
+  // ✅ КАЛЕНДАРЬ АКТИВНОСТИ
   renderActivityCalendar() {
     const container = document.getElementById('activityCalendar');
     if (!container) return;
@@ -100,7 +104,7 @@ const TrackerModule = {
             </div>
           `).join('')}
         </div>
-        <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;align-items:center;">
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
           <span style="font-size:12px;color:var(--text-muted);">Меньше</span>
           <div class="calendar-legend level-0"></div>
           <div class="calendar-legend level-1"></div>
@@ -112,32 +116,39 @@ const TrackerModule = {
     `;
   },
 
-  renderBadges() {
+  // ✅ ПРОГРЕСС ПО УРОВНЯМ
+  renderLevelProgress() {
     const user = AuthService.getUser();
     if (!user) return;
 
-    const tasks = DataService.read('tasks', { userId: user.id });
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
+    const currentPoints = user.totalPoints || 0;
+    const currentLevel = user.level || 1;
     
-    const badges = [
-      { id: 'first_task', name: 'Первый шаг', icon: '🎯', condition: completedTasks >= 1 },
-      { id: 'five_tasks', name: 'Пять задач', icon: '🌟', condition: completedTasks >= 5 },
-      { id: 'ten_tasks', name: 'Десять задач', icon: '🏆', condition: completedTasks >= 10 },
-      { id: 'early_bird', name: 'Ранний пташка', icon: '🌅', condition: completedTasks >= 1 },
-      { id: 'night_owl', name: 'Сова', icon: '🦉', condition: completedTasks >= 1 }
-    ];
+    // Формула: для перехода на следующий уровень нужно level * 100 баллов
+    const pointsForCurrentLevel = (currentLevel - 1) * 100;
+    const pointsForNextLevel = currentLevel * 100;
+    const pointsInCurrentLevel = currentPoints - pointsForCurrentLevel;
+    const pointsNeeded = pointsForNextLevel - pointsForCurrentLevel;
+    const progressPercent = Math.min((pointsInCurrentLevel / pointsNeeded) * 100, 100);
 
-    const badgesList = document.getElementById('badgesList');
-    if (badgesList) {
-      badgesList.innerHTML = badges.map(badge => `
-        <div class="badge-item ${badge.condition ? 'unlocked' : 'locked'}">
-          <div class="badge-icon">${badge.icon}</div>
-          <div class="badge-name">${badge.name}</div>
+    const progressCard = document.getElementById('progressCard');
+    if (progressCard) {
+      progressCard.innerHTML = `
+        <h3 style="margin-bottom:16px;font-size:18px;">📊 Прогресс до ${currentLevel + 1} уровня</h3>
+        <div style="text-align:center;margin-bottom:12px;color:var(--text-muted);">
+          Уровень ${currentLevel}: ${pointsInCurrentLevel} из ${pointsNeeded} баллов
         </div>
-      `).join('');
+        <div class="progress-container">
+          <div class="progress-fill" style="width:${progressPercent}%"></div>
+        </div>
+        <div style="text-align:center;margin-top:8px;color:var(--text-muted);font-size:14px;">
+          Осталось: ${pointsNeeded - pointsInCurrentLevel} баллов
+        </div>
+      `;
     }
   },
 
+  // ✅ ПРОГРЕСС ВЫПОЛНЕНИЯ (старый)
   renderProgress() {
     const user = AuthService.getUser();
     if (!user) return;
@@ -147,10 +158,22 @@ const TrackerModule = {
     const totalTasks = tasks.length;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-    const progressCard = document.getElementById('progressCard');
-    if (progressCard) {
-      progressCard.innerHTML = `
-        <h3 style="margin-bottom:16px;font-size:18px;">📊 Прогресс выполнения</h3>
+    // Создаём контейнер если нет
+    let progressContainer = document.getElementById('taskProgressCard');
+    if (!progressContainer) {
+      // Ищем где вставить после activityCalendar
+      const activityCal = document.getElementById('activityCalendar');
+      if (activityCal && activityCal.parentNode) {
+        progressContainer = document.createElement('div');
+        progressContainer.id = 'taskProgressCard';
+        progressContainer.className = 'card';
+        activityCal.parentNode.insertBefore(progressContainer, activityCal.nextSibling);
+      }
+    }
+    
+    if (progressContainer) {
+      progressContainer.innerHTML = `
+        <h3 style="margin-bottom:16px;font-size:18px;">📋 Прогресс выполнения задач</h3>
         <div class="progress-container">
           <div class="progress-fill" style="width:${progress}%"></div>
         </div>
@@ -159,6 +182,115 @@ const TrackerModule = {
         </div>
       `;
     }
+  },
+
+  // ✅ ДОСТИЖЕНИЯ С КЛИКАМИ
+  renderBadges() {
+    const user = AuthService.getUser();
+    if (!user) return;
+
+    const tasks = DataService.read('tasks', { userId: user.id });
+    const completedTasks = tasks.filter(t => t.status === 'completed').length;
+    
+    // Проверяем достижения
+    const badges = [
+      { 
+        id: 'first_task', 
+        name: 'Первый шаг', 
+        icon: '🎯', 
+        unlocked: completedTasks >= 1,
+        condition: 'Выполните 1 задачу',
+        description: 'Вы выполнили свою первую задачу!'
+      },
+      { 
+        id: 'five_tasks', 
+        name: 'Пять задач', 
+        icon: '🌟', 
+        unlocked: completedTasks >= 5,
+        condition: 'Выполните 5 задач',
+        description: 'Вы выполнили 5 задач! Так держать!'
+      },
+      { 
+        id: 'ten_tasks', 
+        name: 'Десять задач', 
+        icon: '🏆', 
+        unlocked: completedTasks >= 10,
+        condition: 'Выполните 10 задач',
+        description: 'Вы выполнили 10 задач! Вы молодец!'
+      },
+      { 
+        id: 'twenty_tasks', 
+        name: 'Двадцать задач', 
+        icon: '👑', 
+        unlocked: completedTasks >= 20,
+        condition: 'Выполните 20 задач',
+        description: 'Вы выполнили 20 задач! Настоящий профи!'
+      },
+      { 
+        id: 'early_bird', 
+        name: 'Ранний пташка', 
+        icon: '🌅', 
+        unlocked: this.checkEarlyBird(tasks),
+        condition: 'Выполните задачу до 8 утра',
+        description: 'Вы выполнили задачу рано утром!'
+      },
+      { 
+        id: 'night_owl', 
+        name: 'Сова', 
+        icon: '🦉', 
+        unlocked: this.checkNightOwl(tasks),
+        condition: 'Выполните задачу после 22:00',
+        description: 'Вы выполнили задачу поздно вечером!'
+      },
+      { 
+        id: 'week_streak', 
+        name: 'Недельный стрик', 
+        icon: '🔥', 
+        unlocked: completedTasks >= 7,
+        condition: 'Выполняйте задачи 7 дней подряд',
+        description: 'Вы выполняли задачи целую неделю!'
+      }
+    ];
+
+    const badgesList = document.getElementById('badgesList');
+    if (badgesList) {
+      badgesList.innerHTML = badges.map(badge => `
+        <div class="badge-item ${badge.unlocked ? 'unlocked' : 'locked'}" 
+             onclick="TrackerModule.showBadgeInfo('${badge.id}', '${badge.name}', '${badge.icon}', '${badge.condition}', '${badge.description}', ${badge.unlocked})"
+             style="cursor:pointer;position:relative;">
+          <div class="badge-icon">${badge.unlocked ? badge.icon : '🔒'}</div>
+          <div class="badge-name">${badge.name}</div>
+          ${!badge.unlocked ? '<div style="position:absolute;top:2px;right:2px;font-size:10px;">❓</div>' : ''}
+        </div>
+      `).join('');
+    }
+  },
+
+  // ✅ ПОКАЗ ИНФОРМАЦИИ О ДОСТИЖЕНИИ
+  showBadgeInfo(id, name, icon, condition, description, unlocked) {
+    const message = unlocked 
+      ? `✅ ${name} ${icon}\n\n🎉 ${description}\n\nПоздравляем с достижением!`
+      : `🔒 ${name}\n\n📋 Условие: ${condition}\n\nПродолжайте в том же духе!`;
+    
+    alert(message);
+  },
+
+  // Проверка достижения "Ранний пташка"
+  checkEarlyBird(tasks) {
+    return tasks.some(t => {
+      if (t.status !== 'completed' || !t.completedAt) return false;
+      const hour = new Date(t.completedAt).getHours();
+      return hour < 8;
+    });
+  },
+
+  // Проверка достижения "Сова"
+  checkNightOwl(tasks) {
+    return tasks.some(t => {
+      if (t.status !== 'completed' || !t.completedAt) return false;
+      const hour = new Date(t.completedAt).getHours();
+      return hour >= 22;
+    });
   }
 };
 

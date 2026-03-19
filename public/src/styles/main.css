@@ -350,37 +350,6 @@
 .stat-row:last-child, .setting-item:last-child { border-bottom: none; }
 
 /* === 🔘 TOGGLE === */
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: clamp(72px, 19vw, 84px);
-  height: clamp(38px, 11vw, 46px);
-  flex-shrink: 0;  /* ← ДОБАВЬ */
-}
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #e2e8f0;
-  border-radius: 50px;
-  transition: 0.3s;
-}
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: clamp(32px, 9vw, 40px);
-  width: clamp(32px, 9vw, 40px);
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-input:checked + .toggle-slider { background: var(--gradient); }
-input:checked + .toggle-slider:before { transform: translateX(34px); }
-
-/* Контейнер для toggle чтобы не вылезал */
 .setting-item {
   display: flex;
   justify-content: space-between;
@@ -388,7 +357,61 @@ input:checked + .toggle-slider:before { transform: translateX(34px); }
   padding: clamp(20px, 6vw, 28px) 0;
   border-bottom: 1px solid #f1f5f9;
   font-size: clamp(18px, 5.5vw, 22px);
-  overflow: hidden;  /* ← ДОБАВЬ */
+  overflow: visible;  /* ← ИСПРАВЛЕНО */
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 64px;  /* ← ФИКСИРОВАННЫЙ РАЗМЕР */
+  height: 34px;  /* ← ФИКСИРОВАННЫЙ РАЗМЕР */
+  flex-shrink: 0;  /* ← НЕ СЖИМАТЬ */
+  margin: 0;  /* ← УБРАТЬ ОТСТУПЫ */
+}
+
+.toggle input { 
+  opacity: 0; 
+  width: 0; 
+  height: 0; 
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  border-radius: 34px;  /* ← ОКРУГЛЫЙ */
+  transition: 0.3s;
+  overflow: hidden;  /* ← ЧТОБЫ НЕ ВЫЛЕЗАЛ */
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;  /* ← МЕНЬШЕ ВЫСОТА */
+  width: 26px;  /* ← МЕНЬШЕ ШИРИНА */
+  left: 4px;  /* ← ОТСТУП СЛЕВА */
+  bottom: 4px;  /* ← ОТСТУП СНИЗУ */
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);  /* ← ТЕНЬ */
+}
+
+input:checked + .toggle-slider { 
+  background: var(--gradient); 
+}
+
+input:checked + .toggle-slider:before { 
+  transform: translateX(30px);  /* ← СДВИГ */
+}
+
+/* Hover effect */
+.toggle-slider:hover {
+  opacity: 0.9;
 }
 
 /* ============================================ */

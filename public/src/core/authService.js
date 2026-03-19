@@ -4,65 +4,117 @@ const AuthService = {
   users: [],
 
   init() {
+    console.log('[AuthService] Initializing...');
+    
     // Load users from localStorage
-    const savedUsers = localStorage.getItem('smartdash_users');
-    if (savedUsers) {
-      this.users = JSON.parse(savedUsers);
+    try {
+      const savedUsers = localStorage.getItem('smartdash_users');
+      if (savedUsers) {
+        this.users = JSON.parse(savedUsers);
+        console.log('[AuthService] Loaded users:', this.users.length);
+      } else {
+        this.users = [];
+        console.log('[AuthService] No users found, starting fresh');
+      }
+    } catch (e) {
+      console.error('[AuthService] Error loading users:', e);
+      this.users = [];
     }
     
     // Check current session
-    const savedUser = localStorage.getItem('smartdash_current_user');
-    if (savedUser) {
-      this.currentUser = JSON.parse(savedUser);
+    try {
+      const savedUser = localStorage.getItem('smartdash_current_user');
+      if (savedUser) {
+        this.currentUser = JSON.parse(savedUser);
+        console.log('[AuthService] Current user:', this.currentUser?.email);
+      }
+    } catch (e) {
+      console.error('[AuthService] Error loading current user:', e);
+      this.currentUser = null;
     }
   },
 
   register(name, email, password, isAdmin = false) {
+    console.log('[AuthService] Register attempt:', { name, email, isAdmin });
+    
     // Check if user exists
-    if (this.users.find(u => u.email === email)) {
+    const existingUser = this.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existingUser) {
+      console.log('[AuthService] User already exists:', email);
       return { success: false, error: 'Пользователь с таким email уже существует' };
     }
     
     const newUser = {
       id: 'user_' + Date.now(),
-      name,
-      email,
-      password,
-      isAdmin,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password: password,  // В реальном проекте нужно хешировать!
+      isAdmin: isAdmin || false,
       totalPoints: 0,
       level: 1,
       avatar: null,
       createdAt: new Date().toISOString(),
-      settings: { notifications: true, darkTheme: false }
+      settings: { 
+        notifications: true, 
+        darkTheme: false 
+      }
     };
     
     this.users.push(newUser);
     this._saveUsers();
+    
+    console.log('[AuthService] User registered successfully:', newUser);
     return { success: true, user: newUser };
   },
 
   login(email, password) {
-    const user = this.users.find(u => u.email === email && u.password === password);
+    console.log('[AuthService] Login attempt:', { email });
+    
+    const user = this.users.find(u => 
+      u.email.toLowerCase() === email.trim().toLowerCase() && 
+      u.password === password
+    );
+    
     if (user) {
-      this.currentUser = { ...user };
-      delete this.currentUser.password;
+      // Create session without password
+      this.currentUser = { 
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        totalPoints: user.totalPoints,
+        level: user.level,
+        avatar: user.avatar,
+        settings: user.settings
+      };
+      
+      // Save to localStorage
       localStorage.setItem('smartdash_current_user', JSON.stringify(this.currentUser));
+      
+      console.log('[AuthService] Login successful:', this.currentUser);
       return { success: true, user: this.currentUser };
     }
+    
+    console.log('[AuthService] Login failed - user not found or wrong password');
     return { success: false, error: 'Неверный email или пароль' };
   },
 
   logout() {
+    console.log('[AuthService] Logout');
     this.currentUser = null;
     localStorage.removeItem('smartdash_current_user');
-    
-    // ✅ ПРАВИЛЬНЫЙ ПУТЬ для GitHub Pages
     window.location.href = '/smart-dashboard/';
   },
 
   updateProfile(updates) {
-    if (!this.currentUser) return false;
+    if (!this.currentUser) {
+      console.log('[AuthService] No current user to update');
+      return false;
+    }
     
+    console.log('[AuthService] Updating profile:', updates);
+    
+    // Update current user
     this.currentUser = { ...this.currentUser, ...updates };
     
     // Update in users array
@@ -72,7 +124,10 @@ const AuthService = {
       this._saveUsers();
     }
     
+    // Save to localStorage
     localStorage.setItem('smartdash_current_user', JSON.stringify(this.currentUser));
+    
+    console.log('[AuthService] Profile updated successfully');
     return true;
   },
 
@@ -127,9 +182,14 @@ const AuthService = {
   },
 
   _saveUsers() {
-    // Remove passwords before saving
-    const safeUsers = this.users.map(({ password, ...rest }) => rest);
-    localStorage.setItem('smartdash_users', JSON.stringify(safeUsers));
+    try {
+      // Remove passwords before saving
+      const safeUsers = this.users.map(({ password, ...rest }) => rest);
+      localStorage.setItem('smartdash_users', JSON.stringify(safeUsers));
+      console.log('[AuthService] Users saved to localStorage:', safeUsers.length);
+    } catch (e) {
+      console.error('[AuthService] Error saving users:', e);
+    }
   }
 };
 

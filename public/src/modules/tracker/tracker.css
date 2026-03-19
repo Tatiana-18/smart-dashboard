@@ -55,3 +55,137 @@
   font-weight: 700;
   color: var(--text-main);
 }
+
+/* === 📅 ACTIVITY CALENDAR === */
+.activity-calendar {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.calendar-day {
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 8px;
+  text-align: center;
+  transition: all 0.3s;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-day.level-0 { background: #e2e8f0; }
+.calendar-day.level-1 { background: #93c5fd; }
+.calendar-day.level-2 { background: #60a5fa; }
+.calendar-day.level-3 { background: #3b82f6; }
+
+.calendar-day.level-1,
+.calendar-day.level-2,
+.calendar-day.level-3 {
+  color: white;
+}
+
+.day-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.calendar-day.level-1 .day-name,
+.calendar-day.level-2 .day-name,
+.calendar-day.level-3 .day-name {
+  color: rgba(255,255,255,0.9);
+}
+
+.day-num {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.day-count {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.calendar-legend {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.calendar-legend.level-0 { background: #e2e8f0; }
+.calendar-legend.level-1 { background: #93c5fd; }
+.calendar-legend.level-2 { background: #60a5fa; }
+.calendar-legend.level-3 { background: #3b82f6; }
+
+/* === 🏆 BADGES === */
+.badges {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.badges::-webkit-scrollbar { 
+  display: none; 
+}
+
+.badge-item {
+  background: var(--surface);
+  padding: 16px 12px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 90px;
+  box-shadow: 0 3px 10px var(--shadow);
+  flex-shrink: 0;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.badge-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.badge-item.unlocked {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+}
+
+.badge-item.locked {
+  opacity: 0.6;
+  filter: grayscale(0.8);
+}
+
+.badge-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.badge-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.badge-item.unlocked .badge-name {
+  color: var(--primary);
+  font-weight: 700;
+}

@@ -2,7 +2,7 @@
 const TasksModule = {
   currentFilter: 'all',
   
-  // ✅ ДОБАВЛЕНЫ КАТЕГОРИИ
+  // ✅ КАТЕГОРИИ
   categories: [
     { name: 'Все', icon: '', filter: 'all' },
     { name: 'Бытовые', icon: '🏠', filter: 'household' },
@@ -12,22 +12,30 @@ const TasksModule = {
   ],
 
   init() {
+    console.log('[TasksModule] Initializing...');
     this.loadTasks();
     this.setupEventListeners();
   },
 
   loadTasks() {
     const user = AuthService.getUser();
-    if (!user) return;
+    if (!user) {
+      console.log('[TasksModule] No user, redirecting to login');
+      return;
+    }
     
     const tasks = DataService.read('tasks', { userId: user.id });
+    console.log('[TasksModule] Loaded tasks:', tasks.length);
     TasksUI.render(tasks, this.currentFilter);
     this.updateStreak(tasks);
   },
 
   setupEventListeners() {
     // Add task button
-    document.getElementById('addTaskBtn')?.addEventListener('click', () => this.addTask());
+    const addBtn = document.getElementById('addTaskBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => this.addTask());
+    }
     
     // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -35,41 +43,51 @@ const TasksModule = {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         this.currentFilter = e.target.dataset.filter || 'all';
+        console.log('[TasksModule] Filter changed to:', this.currentFilter);
         this.loadTasks();
       });
     });
 
     // Delegate checkbox clicks
-    document.getElementById('tasksList')?.addEventListener('click', (e) => {
-      const checkbox = e.target.closest('.checkbox');
-      if (checkbox) {
-        const taskId = checkbox.dataset.id;  // ✅ Берём из data-id
-        toggleTask(taskId);  // ✅ Вызываем глобальную функцию
-      }
-      
-      // Edit button
-      const editBtn = e.target.closest('.edit-btn');
-      if (editBtn) {
-        const taskId = editBtn.dataset.id;
-        this.editTask(taskId);
-      }
-      
-      // Delete button
-      const deleteBtn = e.target.closest('.delete-btn');
-      if (deleteBtn) {
-        const taskId = deleteBtn.dataset.id;
-        this.deleteTask(taskId);
-      }
-    });
+    const tasksList = document.getElementById('tasksList');
+    if (tasksList) {
+      tasksList.addEventListener('click', (e) => {
+        const checkbox = e.target.closest('.checkbox');
+        if (checkbox) {
+          const taskId = checkbox.dataset.id;
+          console.log('[TasksModule] Toggle task:', taskId);
+          this.toggleTask(taskId);
+        }
+        
+        // Edit button
+        const editBtn = e.target.closest('.edit-btn');
+        if (editBtn) {
+          const taskId = editBtn.dataset.id;
+          console.log('[TasksModule] Edit task:', taskId);
+          this.editTask(taskId);
+        }
+        
+        // Delete button
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+          const taskId = deleteBtn.dataset.id;
+          console.log('[TasksModule] Delete task:', taskId);
+          this.deleteTask(taskId);
+        }
+      });
+    }
   },
 
   addTask() {
     const title = prompt('Название задачи:');
-    if (!title) return;
+    if (!title || !title.trim()) {
+      console.log('[TasksModule] Empty title, canceling');
+      return;
+    }
     
-    // ✅ ДОБАВЛЕН ВЫБОР КАТЕГОРИИ
+    // ✅ ВЫБОР КАТЕГОРИИ
     const categoryPrompt = prompt(
-      'Выберите категорию (введите номер):\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
+      'Выберите категорию (введите номер):\n\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
       '4'
     );
     
@@ -81,73 +99,144 @@ const TasksModule = {
     };
     
     const type = categoryMap[categoryPrompt] || 'other';
-    const points = parseInt(prompt('Баллы за выполнение:', '10')) || 10;
+    const pointsInput = prompt('Баллы за выполнение:', '10');
+    const points = parseInt(pointsInput) || 10;
     
+    const user = AuthService.getUser();
     const task = {
-      title,
+      userId: user.id,
+      title: title.trim(),
       type,
       status: 'pending',
       points,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      completedAt: null
     };
     
+    console.log('[TasksModule] Creating task:', task);
     DataService.create('tasks', task);
     this.loadTasks();
-    TrackerModule.update();
-    NotificationService.show(NotificationService.types.SUCCESS, { points });
+    
+    if (window.TrackerModule) {
+      TrackerModule.update();
+    }
+    
+    if (window.NotificationService) {
+      NotificationService.show(NotificationService.types.SUCCESS, { points });
+    }
   },
 
   toggleTask(id) {
-    const task = DataService.read('tasks').find(t => t.id === id);
-    if (!task) return;
+    const allTasks = DataService.read('tasks');
+    const task = allTasks.find(t => t.id === id);
     
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-    DataService.update('tasks', id, { status: newStatus });
+    if (!task) {
+      console.log('[TasksModule] Task not found:', id);
+      return;
+    }
     
+    const oldStatus = task.status;
+    const newStatus = oldStatus === 'completed' ? 'pending' : 'completed';
+    
+    console.log('[TasksModule] Toggle task:', { id, oldStatus, newStatus });
+    
+    DataService.update('tasks', id, { 
+      status: newStatus,
+      completedAt: newStatus === 'completed' ? new Date().toISOString() : null
+    });
+    
+    const user = AuthService.getUser();
+    
+    // ✅ НАЧИСЛЕНИЕ БАЛЛОВ ПРИ ВЫПОЛНЕНИИ
     if (newStatus === 'completed') {
-      // Award points
-      const user = AuthService.getUser();
       user.totalPoints = (user.totalPoints || 0) + task.points;
       AuthService.updateProfile({ totalPoints: user.totalPoints });
       
       // Check for early bird achievement
       const hour = new Date().getHours();
-      if (hour < 8) {
+      if (hour < 8 && window.NotificationService) {
         NotificationService.show(NotificationService.types.ACHIEVEMENT, { name: '⭐ Ранний пташка' });
       }
       
-      NotificationService.show(NotificationService.types.SUCCESS, { points: task.points });
+      if (window.NotificationService) {
+        NotificationService.show(NotificationService.types.SUCCESS, { points: task.points });
+      }
       
       // Update streak
       const tasks = DataService.read('tasks', { userId: user.id });
       const streak = DataService._calculateStreak(tasks);
-      if (streak >= 7) {
+      if (streak >= 7 && window.NotificationService) {
         NotificationService.show(NotificationService.types.STREAK, { days: streak });
+      }
+    }
+    // ✅ ВЫЧИТАНИЕ БАЛЛОВ ПРИ ОТМЕНЕ
+    else if (oldStatus === 'completed') {
+      user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);
+      AuthService.updateProfile({ totalPoints: user.totalPoints });
+      
+      if (window.NotificationService) {
+        NotificationService.show(NotificationService.types.ERROR, { 
+          message: `-${task.points} баллов (задача отменена)` 
+        });
       }
     }
     
     this.loadTasks();
-    TrackerModule.update();
+    
+    if (window.TrackerModule) {
+      TrackerModule.update();
+    }
   },
 
   editTask(id) {
     const task = DataService.read('tasks').find(t => t.id === id);
-    if (!task) return;
+    if (!task) {
+      console.log('[TasksModule] Task not found for edit:', id);
+      return;
+    }
     
     const title = prompt('Новое название:', task.title);
-    if (title === null) return;
+    if (title === null) {
+      console.log('[TasksModule] Edit canceled');
+      return;
+    }
     
-    const points = parseInt(prompt('Баллы:', task.points)) || task.points;
+    const pointsInput = prompt('Баллы:', task.points);
+    const points = parseInt(pointsInput) || task.points;
     
-    DataService.update('tasks', id, { title, points });
+    console.log('[TasksModule] Updating task:', { id, title, points });
+    DataService.update('tasks', id, { title: title.trim(), points });
     this.loadTasks();
   },
 
   deleteTask(id) {
+    const task = DataService.read('tasks').find(t => t.id === id);
+    if (!task) {
+      console.log('[TasksModule] Task not found for delete:', id);
+      return;
+    }
+    
+    // ✅ ЕСЛИ ЗАДАЧА БЫЛА ВЫПОЛНЕНА - ВЫЧЕСТЬ БАЛЛЫ
+    if (task.status === 'completed') {
+      const user = AuthService.getUser();
+      user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);
+      AuthService.updateProfile({ totalPoints: user.totalPoints });
+      
+      if (window.NotificationService) {
+        NotificationService.show(NotificationService.types.ERROR, { 
+          message: `-${task.points} баллов (задача удалена)` 
+        });
+      }
+    }
+    
     if (confirm('Удалить задачу?')) {
+      console.log('[TasksModule] Deleting task:', id);
       DataService.delete('tasks', id);
       this.loadTasks();
-      TrackerModule.update();
+      
+      if (window.TrackerModule) {
+        TrackerModule.update();
+      }
     }
   },
 
@@ -155,8 +244,9 @@ const TasksModule = {
     const streak = DataService._calculateStreak(tasks);
     const streakCard = document.getElementById('streakCard');
     if (streakCard) {
+      const dayWord = streak === 1 ? 'день' : streak < 5 ? 'дня' : 'дней';
       streakCard.querySelector('div').innerHTML = 
-        `🔥 СТРИК: ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дня' : 'дней'} подряд!`;
+        `🔥 СТРИК: ${streak} ${dayWord} подряд!`;
     }
   },
 

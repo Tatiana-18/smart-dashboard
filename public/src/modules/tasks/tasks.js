@@ -2,7 +2,6 @@
 const TasksModule = {
   currentFilter: 'all',
   
-  // ✅ КАТЕГОРИИ
   categories: [
     { name: 'Все', icon: '', filter: 'all' },
     { name: 'Бытовые', icon: '🏠', filter: 'household' },
@@ -12,81 +11,61 @@ const TasksModule = {
   ],
 
   init() {
-    console.log('[TasksModule] Initializing...');
     this.loadTasks();
     this.setupEventListeners();
   },
 
   loadTasks() {
     const user = AuthService.getUser();
-    if (!user) {
-      console.log('[TasksModule] No user, redirecting to login');
-      return;
-    }
+    if (!user) return;
     
     const tasks = DataService.read('tasks', { userId: user.id });
-    console.log('[TasksModule] Loaded tasks:', tasks.length);
     TasksUI.render(tasks, this.currentFilter);
     this.updateStreak(tasks);
   },
 
   setupEventListeners() {
-    // Add task button
     const addBtn = document.getElementById('addTaskBtn');
     if (addBtn) {
       addBtn.addEventListener('click', () => this.addTask());
     }
     
-    // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         this.currentFilter = e.target.dataset.filter || 'all';
-        console.log('[TasksModule] Filter changed to:', this.currentFilter);
         this.loadTasks();
       });
     });
 
-    // Delegate checkbox clicks
     const tasksList = document.getElementById('tasksList');
     if (tasksList) {
       tasksList.addEventListener('click', (e) => {
         const checkbox = e.target.closest('.checkbox');
         if (checkbox) {
           const taskId = checkbox.dataset.id;
-          console.log('[TasksModule] Toggle task:', taskId);
           this.toggleTask(taskId);
         }
         
-        // Edit button
         const editBtn = e.target.closest('.edit-btn');
         if (editBtn) {
-          const taskId = editBtn.dataset.id;
-          console.log('[TasksModule] Edit task:', taskId);
-          this.editTask(taskId);
+          this.editTask(editBtn.dataset.id);
         }
         
-        // Delete button
         const deleteBtn = e.target.closest('.delete-btn');
         if (deleteBtn) {
-          const taskId = deleteBtn.dataset.id;
-          console.log('[TasksModule] Delete task:', taskId);
-          this.deleteTask(taskId);
+          this.deleteTask(deleteBtn.dataset.id);
         }
       });
     }
   },
 
-  // ✅ ИСПРАВЛЕНО: баллы НЕ начисляются при создании
+  // ✅ БАЛЛЫ НЕ НАЧИСЛЯЮТСЯ ПРИ СОЗДАНИИ
   addTask() {
     const title = prompt('Название задачи:');
-    if (!title || !title.trim()) {
-      console.log('[TasksModule] Empty title, canceling');
-      return;
-    }
+    if (!title || !title.trim()) return;
     
-    // ✅ ВЫБОР КАТЕГОРИИ
     const categoryPrompt = prompt(
       'Выберите категорию (введите номер):\n\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
       '4'
@@ -100,21 +79,19 @@ const TasksModule = {
     };
     
     const type = categoryMap[categoryPrompt] || 'other';
-    const pointsInput = prompt('Баллы за выполнение:', '10');
-    const points = parseInt(pointsInput) || 10;
+    const points = parseInt(prompt('Баллы за выполнение:', '10')) || 10;
     
     const user = AuthService.getUser();
     const task = {
       userId: user.id,
       title: title.trim(),
       type,
-      status: 'pending',  // ←pending, баллов НЕТ
+      status: 'pending',  // ← pending = баллов НЕТ
       points,
       date: new Date().toISOString(),
       completedAt: null
     };
     
-    console.log('[TasksModule] Creating task:', task);
     DataService.create('tasks', task);
     this.loadTasks();
     
@@ -122,23 +99,18 @@ const TasksModule = {
       TrackerModule.update();
     }
     
-    // ✅ УБРАНО: НЕ показываем уведомление о баллах при создании
-    // Баллы начисляются ТОЛЬКО при выполнении!
+    // ✅ НЕТ уведомления о баллах при создании!
   },
 
+  // ✅ БАЛЛЫ НАЧИСЛЯЮТСЯ ТОЛЬКО ЗДЕСЬ
   toggleTask(id) {
     const allTasks = DataService.read('tasks');
     const task = allTasks.find(t => t.id === id);
     
-    if (!task) {
-      console.log('[TasksModule] Task not found:', id);
-      return;
-    }
+    if (!task) return;
     
     const oldStatus = task.status;
     const newStatus = oldStatus === 'completed' ? 'pending' : 'completed';
-    
-    console.log('[TasksModule] Toggle task:', { id, oldStatus, newStatus });
     
     DataService.update('tasks', id, { 
       status: newStatus,
@@ -147,36 +119,23 @@ const TasksModule = {
     
     const user = AuthService.getUser();
     
-    // ✅ НАЧИСЛЕНИЕ БАЛЛОВ ПРИ ВЫПОЛНЕНИИ
+    // ✅ НАЧИСЛЕНИЕ ПРИ ВЫПОЛНЕНИИ
     if (newStatus === 'completed') {
       user.totalPoints = (user.totalPoints || 0) + task.points;
       AuthService.updateProfile({ totalPoints: user.totalPoints });
       
-      // Check for early bird achievement
-      const hour = new Date().getHours();
-      if (hour < 8 && window.NotificationService) {
-        NotificationService.show(NotificationService.types.ACHIEVEMENT, { name: '⭐ Ранний пташка' });
-      }
-      
       if (window.NotificationService) {
         NotificationService.show(NotificationService.types.SUCCESS, { points: task.points });
       }
-      
-      // Update streak
-      const tasks = DataService.read('tasks', { userId: user.id });
-      const streak = DataService._calculateStreak(tasks);
-      if (streak >= 7 && window.NotificationService) {
-        NotificationService.show(NotificationService.types.STREAK, { days: streak });
-      }
     }
-    // ✅ ВЫЧИТАНИЕ БАЛЛОВ ПРИ ОТМЕНЕ
+    // ✅ ВЫЧИТАНИЕ ПРИ ОТМЕНЕ
     else if (oldStatus === 'completed') {
       user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);
       AuthService.updateProfile({ totalPoints: user.totalPoints });
       
       if (window.NotificationService) {
         NotificationService.show(NotificationService.types.ERROR, { 
-          message: `-${task.points} баллов (задача отменена)` 
+          message: `-${task.points} баллов` 
         });
       }
     }
@@ -190,47 +149,29 @@ const TasksModule = {
 
   editTask(id) {
     const task = DataService.read('tasks').find(t => t.id === id);
-    if (!task) {
-      console.log('[TasksModule] Task not found for edit:', id);
-      return;
-    }
+    if (!task) return;
     
     const title = prompt('Новое название:', task.title);
-    if (title === null) {
-      console.log('[TasksModule] Edit canceled');
-      return;
-    }
+    if (title === null) return;
     
-    const pointsInput = prompt('Баллы:', task.points);
-    const points = parseInt(pointsInput) || task.points;
+    const points = parseInt(prompt('Баллы:', task.points)) || task.points;
     
-    console.log('[TasksModule] Updating task:', { id, title, points });
     DataService.update('tasks', id, { title: title.trim(), points });
     this.loadTasks();
   },
 
   deleteTask(id) {
     const task = DataService.read('tasks').find(t => t.id === id);
-    if (!task) {
-      console.log('[TasksModule] Task not found for delete:', id);
-      return;
-    }
+    if (!task) return;
     
-    // ✅ ЕСЛИ ЗАДАЧА БЫЛА ВЫПОЛНЕНА - ВЫЧЕСТЬ БАЛЛЫ
+    // ✅ ВЫЧИТАНИЕ ПРИ УДАЛЕНИИ ВЫПОЛНЕННОЙ
     if (task.status === 'completed') {
       const user = AuthService.getUser();
       user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);
       AuthService.updateProfile({ totalPoints: user.totalPoints });
-      
-      if (window.NotificationService) {
-        NotificationService.show(NotificationService.types.ERROR, { 
-          message: `-${task.points} баллов (задача удалена)` 
-        });
-      }
     }
     
     if (confirm('Удалить задачу?')) {
-      console.log('[TasksModule] Deleting task:', id);
       DataService.delete('tasks', id);
       this.loadTasks();
       
@@ -248,11 +189,6 @@ const TasksModule = {
       streakCard.querySelector('div').innerHTML = 
         `🔥 СТРИК: ${streak} ${dayWord} подряд!`;
     }
-  },
-
-  filterTasks(filter) {
-    this.currentFilter = filter;
-    this.loadTasks();
   }
 };
 

@@ -78,6 +78,7 @@ const TasksModule = {
     }
   },
 
+  // ✅ ИСПРАВЛЕНО: баллы НЕ начисляются при создании
   addTask() {
     const title = prompt('Название задачи:');
     if (!title || !title.trim()) {
@@ -107,7 +108,7 @@ const TasksModule = {
       userId: user.id,
       title: title.trim(),
       type,
-      status: 'pending',
+      status: 'pending',  // ←pending, баллов НЕТ
       points,
       date: new Date().toISOString(),
       completedAt: null
@@ -121,9 +122,8 @@ const TasksModule = {
       TrackerModule.update();
     }
     
-    if (window.NotificationService) {
-      NotificationService.show(NotificationService.types.SUCCESS, { points });
-    }
+    // ✅ УБРАНО: НЕ показываем уведомление о баллах при создании
+    // Баллы начисляются ТОЛЬКО при выполнении!
   },
 
   toggleTask(id) {

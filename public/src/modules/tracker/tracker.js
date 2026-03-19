@@ -2,14 +2,14 @@
 const TrackerModule = {
   init() {
     this.updateStats();
-    this.renderActivityCalendar();
+    // УБРАНО: this.renderActivityCalendar();
     this.renderBadges();
     this.renderLevelProgress();
   },
 
   update() {
     this.updateStats();
-    this.renderActivityCalendar();
+    // УБРАНО: this.renderActivityCalendar();
     this.renderBadges();
     this.renderLevelProgress();
   },
@@ -48,76 +48,6 @@ const TrackerModule = {
     }
   },
 
-  // ✅ КАЛЕНДАРЬ АКТИВНОСТИ (исправленный)
-  renderActivityCalendar() {
-    const container = document.getElementById('activityCalendar');
-    if (!container) {
-      console.log('[Tracker] Activity calendar container not found');
-      return;
-    }
-
-    const user = AuthService.getUser();
-    if (!user) return;
-    
-    const tasks = DataService.read('tasks', { userId: user.id });
-    const notes = DataService.read('notes', { userId: user.id });
-    
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const tasksCompleted = tasks.filter(t => 
-        t.status === 'completed' && 
-        t.completedAt && 
-        t.completedAt.startsWith(dateStr)
-      ).length;
-      
-      const notesCreated = notes.filter(n => 
-        n.createdAt && n.createdAt.startsWith(dateStr)
-      ).length;
-      
-      const total = tasksCompleted + notesCreated;
-      
-      days.push({
-        date: dateStr,
-        dayName: date.toLocaleDateString('ru', { weekday: 'short' }),
-        dayNum: date.getDate(),
-        count: total,
-        level: total === 0 ? 0 : total < 3 ? 1 : total < 5 ? 2 : 3
-      });
-    }
-    
-    container.innerHTML = `
-      <div class="activity-calendar" style="background:var(--surface);border-radius:16px;padding:24px;margin:20px;">
-        <h3 style="margin-bottom:16px;font-size:18px;">📅 Активность за неделю</h3>
-        <div class="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:16px;">
-          ${days.map(day => `
-            <div class="calendar-day level-${day.level}" style="background:${this.getCalendarColor(day.level)};border-radius:8px;padding:12px 8px;text-align:center;min-height:80px;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:all 0.3s;">
-              <div class="day-name" style="font-size:11px;color:${day.level > 0 ? 'rgba(255,255,255,0.9)' : 'var(--text-muted)'};margin-bottom:4px;text-transform:capitalize;">${day.dayName}</div>
-              <div class="day-num" style="font-size:18px;font-weight:700;margin-bottom:4px;">${day.dayNum}</div>
-              <div class="day-count" style="font-size:14px;font-weight:600;">${day.count}</div>
-            </div>
-          `).join('')}
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
-          <span style="font-size:12px;color:var(--text-muted);">Меньше</span>
-          <div style="width:20px;height:20px;border-radius:4px;background:#e2e8f0;"></div>
-          <div style="width:20px;height:20px;border-radius:4px;background:#93c5fd;"></div>
-          <div style="width:20px;height:20px;border-radius:4px;background:#60a5fa;"></div>
-          <div style="width:20px;height:20px;border-radius:4px;background:#3b82f6;"></div>
-          <span style="font-size:12px;color:var(--text-muted);">Больше</span>
-        </div>
-      </div>
-    `;
-  },
-
-  getCalendarColor(level) {
-    const colors = ['#e2e8f0', '#93c5fd', '#60a5fa', '#3b82f6'];
-    return colors[level] || colors[0];
-  },
-
   // ✅ ИСПРАВЛЕННЫЙ ПРОГРЕСС ПО УРОВНЯМ
   renderLevelProgress() {
     const user = AuthService.getUser();
@@ -125,58 +55,44 @@ const TrackerModule = {
 
     const currentPoints = user.totalPoints || 0;
     
-    // ✅ НОВАЯ ФОРМУЛА: 
+    // ФОРМУЛА: 
     // Уровень 1→2: 100 очков
     // Уровень 2→3: 150 очков
     // Уровень 3→4: 200 очков
     // Уровень n→n+1: 100 + (n-1)*50 очков
     
-    // Вычисляем текущий уровень
     let level = 1;
-    let totalPointsForNextLevel = 100; // Для перехода на 2 уровень нужно 100
+    let totalPointsForNextLevel = 100;
     let cumulativePoints = 0;
     
     while (currentPoints >= totalPointsForNextLevel) {
       cumulativePoints = totalPointsForNextLevel;
       level++;
-      // Следующий уровень требует на 50 очков больше
       const pointsForThisLevel = 100 + (level - 1) * 50;
       totalPointsForNextLevel += pointsForThisLevel;
     }
     
-    // Обновляем уровень пользователя если изменился
     if (level !== user.level) {
       AuthService.updateProfile({ level });
     }
     
     const nextLevel = level + 1;
-    const pointsForNextLevel = 100 + (level - 1) * 50; // Сколько нужно для следующего уровня
-    const pointsInCurrentLevel = currentPoints - cumulativePoints; // Сколько набрали на текущем
-    const pointsNeeded = pointsForNextLevel; // Сколько нужно всего для перехода
-    const progressPercent = Math.min((pointsInCurrentLevel / pointsNeeded) * 100, 100);
-
-    console.log('[Tracker] Level progress:', {
-      currentPoints,
-      level,
-      nextLevel,
-      pointsForNextLevel,
-      pointsInCurrentLevel,
-      pointsNeeded,
-      progressPercent
-    });
+    const pointsForNextLevel = 100 + (level - 1) * 50;
+    const pointsInCurrentLevel = currentPoints - cumulativePoints;
+    const progressPercent = Math.min((pointsInCurrentLevel / pointsForNextLevel) * 100, 100);
 
     const progressCard = document.getElementById('progressCard');
     if (progressCard) {
       progressCard.innerHTML = `
         <h3 style="margin-bottom:16px;font-size:18px;">📊 Прогресс до ${nextLevel} уровня</h3>
         <div style="text-align:center;margin-bottom:12px;color:var(--text-muted);">
-          Уровень ${level}: ${pointsInCurrentLevel} из ${pointsNeeded} баллов
+          Уровень ${level}: ${pointsInCurrentLevel} из ${pointsForNextLevel} баллов
         </div>
         <div class="progress-container" style="background:#e2e8f0;border-radius:8px;height:16px;margin:18px 0;overflow:hidden;">
           <div class="progress-fill" style="background:var(--gradient);height:100%;border-radius:8px;transition:width 0.6s ease;width:${progressPercent}%"></div>
         </div>
         <div style="text-align:center;margin-top:8px;color:var(--text-muted);font-size:14px;">
-          Осталось: ${pointsNeeded - pointsInCurrentLevel} баллов
+          Осталось: ${pointsForNextLevel - pointsInCurrentLevel} баллов
         </div>
       `;
     }

@@ -17,7 +17,7 @@ const AuthService = {
     }
   },
 
-  register(name, email, password) {
+  register(name, email, password, isAdmin = false) {
     // Check if user exists
     if (this.users.find(u => u.email === email)) {
       return { success: false, error: 'Пользователь с таким email уже существует' };
@@ -27,7 +27,8 @@ const AuthService = {
       id: 'user_' + Date.now(),
       name,
       email,
-      password, // В реальном проекте — хешировать!
+      password,
+      isAdmin,
       totalPoints: 0,
       level: 1,
       avatar: null,
@@ -54,7 +55,11 @@ const AuthService = {
   logout() {
     this.currentUser = null;
     localStorage.removeItem('smartdash_current_user');
-    window.location.href = 'index.html';
+    
+    // ✅ ПРАВИЛЬНЫЙ ПУТЬ для GitHub Pages (public/ = корень сайта)
+    window.location.href = '/index.html';
+    // Или просто:
+    // window.location.href = '/';
   },
 
   updateProfile(updates) {
@@ -97,4 +102,5 @@ const AuthService = {
   }
 };
 
+// Экспортируем для использования в других модулях
 window.AuthService = AuthService;

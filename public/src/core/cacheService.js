@@ -5,7 +5,7 @@ const CacheService = {
   async cacheResources() {
     const cache = await caches.open(this.cacheName);
     const resources = [
-      '../public/index.html',
+      '../index.html',
       '../src/styles/variables.css',
       '../src/styles/reset.css',
       '../src/styles/main.css',

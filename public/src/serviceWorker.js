@@ -5,10 +5,10 @@ const CACHE_VERSION = 'v1';
 // Ресурсы для кэширования при установке
 const ASSETS_TO_CACHE = [
   '/',
-  '/public/index.html',
-  '/public/offline.html',           // ← ДОБАВЬ ЭТУ СТРОКУ
-  '/public/manifest.json',
-  '/public/favicon.ico',
+  '/index.html',
+  '/offline.html',           // ← ДОБАВЬ ЭТУ СТРОКУ
+  '/manifest.json',
+  '/favicon.ico',
   '/src/main.js',
   '/src/styles/variables.css',
   '/src/styles/reset.css',
@@ -97,7 +97,7 @@ self.addEventListener('fetch', event => {
             // Если нет интернета — показываем offline.html
             // Только для навигационных запросов (страницы)
             if (event.request.mode === 'navigate') {
-              return caches.match('/public/offline.html');
+              return caches.match('/offline.html');
             }
             // Для других запросов возвращаем ошибку
             return new Response('Offline', { status: 503 });

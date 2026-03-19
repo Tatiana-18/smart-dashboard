@@ -52,7 +52,8 @@
       font-weight: 700;
       margin-bottom: 24px;
       background: var(--gradient);
-      -webkit-background-clip: text;
+      background-clip: text;           /* ← Добавь стандартное свойство */
+      -webkit-background-clip: text;   /* ← Оставь вебкит префикс */
       -webkit-text-fill-color: transparent;
     }
     

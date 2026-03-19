@@ -1,6 +1,15 @@
 // === 📋 TASKS MODULE ===
 const TasksModule = {
   currentFilter: 'all',
+  
+  // ✅ ДОБАВЛЕНЫ КАТЕГОРИИ
+  categories: [
+    { name: 'Все', icon: '', filter: 'all' },
+    { name: 'Бытовые', icon: '🏠', filter: 'household' },
+    { name: 'Здоровье', icon: '💧', filter: 'health' },
+    { name: 'Привычки', icon: '⭐', filter: 'habit' },
+    { name: 'Другое', icon: '📋', filter: 'other' }
+  ],
 
   init() {
     this.loadTasks();
@@ -34,8 +43,8 @@ const TasksModule = {
     document.getElementById('tasksList')?.addEventListener('click', (e) => {
       const checkbox = e.target.closest('.checkbox');
       if (checkbox) {
-        const taskId = checkbox.dataset.id;
-        this.toggleTask(taskId);
+        const taskId = checkbox.dataset.id;  // ✅ Берём из data-id
+        toggleTask(taskId);  // ✅ Вызываем глобальную функцию
       }
       
       // Edit button
@@ -58,12 +67,25 @@ const TasksModule = {
     const title = prompt('Название задачи:');
     if (!title) return;
     
-    const type = prompt('Тип задачи (household/health/habit):', 'habit');
+    // ✅ ДОБАВЛЕН ВЫБОР КАТЕГОРИИ
+    const categoryPrompt = prompt(
+      'Выберите категорию (введите номер):\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
+      '4'
+    );
+    
+    const categoryMap = {
+      '1': 'household',
+      '2': 'health',
+      '3': 'habit',
+      '4': 'other'
+    };
+    
+    const type = categoryMap[categoryPrompt] || 'other';
     const points = parseInt(prompt('Баллы за выполнение:', '10')) || 10;
     
     const task = {
       title,
-      type: type || 'habit',
+      type,
       status: 'pending',
       points,
       date: new Date().toISOString()

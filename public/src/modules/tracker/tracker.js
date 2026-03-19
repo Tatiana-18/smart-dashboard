@@ -1,110 +1,164 @@
 // === 📊 TRACKER MODULE ===
 const TrackerModule = {
   init() {
-    this.update();
-    this.setupEventListeners();
+    this.updateStats();
+    this.renderActivityCalendar();
+    this.renderBadges();
+    this.renderProgress();
   },
 
   update() {
+    this.updateStats();
+    this.renderActivityCalendar();
+  },
+
+  updateStats() {
     const user = AuthService.getUser();
     if (!user) return;
+
+    const tasks = DataService.read('tasks', { userId: user.id });
+    const notes = DataService.read('notes', { userId: user.id });
     
-    const stats = DataService.getStats(user.id);
-    const achievements = DataService.collections.achievements;
-    
-    TrackerUI.render(stats, achievements);
-    MascotModule.update('default');
+    const completedTasks = tasks.filter(t => t.status === 'completed').length;
+    const totalPoints = user.totalPoints || 0;
+    const level = user.level || 1;
+
+    // Обновляем статистику
+    const statsGrid = document.getElementById('statsGrid');
+    if (statsGrid) {
+      statsGrid.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${totalPoints}</div>
+          <div class="stat-label">Всего баллов</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${level}</div>
+          <div class="stat-label">Уровень</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${completedTasks}</div>
+          <div class="stat-label">Задач выполнено</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${notes.length}</div>
+          <div class="stat-label">Заметок создано</div>
+        </div>
+      `;
+    }
   },
 
-  setupEventListeners() {
-    // Progress card click
-    document.getElementById('progressCard')?.addEventListener('click', (e) => {
-      if (e.target.closest('.progress-container')) {
-        const user = AuthService.getUser();
-        const points = user?.totalPoints || 0;
-        alert(`📊 Ваши баллы: ${points}\nДо следующего уровня: ${Math.max(0, 1000 - points)}`);
-      }
-    });
+  // ✅ ИСПРАВЛЕННЫЙ КАЛЕНДАРЬ АКТИВНОСТИ
+  renderActivityCalendar() {
+    const container = document.getElementById('activityCalendar');
+    if (!container) return;
 
-    // Activity card click - show calendar
-    document.getElementById('activityCard')?.addEventListener('click', () => {
-      this.showCalendar();
-    });
-
-    // Achievement click
-    document.getElementById('badgesList')?.addEventListener('click', (e) => {
-      const badge = e.target.closest('.badge-item');
-      if (badge) {
-        const achId = badge.dataset.id;
-        const ach = DataService.collections.achievements.find(a => a.id === achId);
-        if (ach) {
-          const status = ach.unlocked ? 
-            `✅ Получено: ${new Date(ach.date).toLocaleDateString('ru-RU')}` : 
-            `🔒 Условие: ${ach.desc}`;
-          alert(`${ach.name}\n\n${status}`);
-        }
-      }
-    });
-  },
-
-  showCalendar() {
     const user = AuthService.getUser();
     if (!user) return;
     
     const tasks = DataService.read('tasks', { userId: user.id });
-    const completedDates = tasks
-      .filter(t => t.status === 'completed')
-      .map(t => new Date(t.date || t.createdAt).toDateString());
+    const notes = DataService.read('notes', { userId: user.id });
     
-    // Simple calendar modal
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-      position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;
-      z-index:3000;padding:20px;
-    `;
+    // Получаем данные за последние 7 дней
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Считаем выполненные задачи за день
+      const tasksCompleted = tasks.filter(t => 
+        t.status === 'completed' && 
+        t.completedAt && 
+        t.completedAt.startsWith(dateStr)
+      ).length;
+      
+      // Считаем созданные заметки за день
+      const notesCreated = notes.filter(n => 
+        n.createdAt && n.createdAt.startsWith(dateStr)
+      ).length;
+      
+      const total = tasksCompleted + notesCreated;
+      
+      days.push({
+        date: dateStr,
+        dayName: date.toLocaleDateString('ru', { weekday: 'short' }),
+        dayNum: date.getDate(),
+        count: total,
+        level: total === 0 ? 0 : total < 3 ? 1 : total < 5 ? 2 : 3
+      });
+    }
     
-    modal.innerHTML = `
-      <div style="background:var(--surface);border-radius:16px;padding:24px;max-width:400px;width:100%;max-height:80vh;overflow:auto;">
-        <h3 style="margin:0 0 16px;">🗓️ Календарь активности</h3>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:12px;">
-          ${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d => `<div style="font-weight:600;color:var(--text-muted);">${d}</div>`).join('')}
-          ${this._generateCalendarDays(completedDates)}
+    container.innerHTML = `
+      <div class="activity-calendar">
+        <h3 style="margin-bottom:16px;font-size:18px;">📅 Активность за неделю</h3>
+        <div class="calendar-grid">
+          ${days.map(day => `
+            <div class="calendar-day level-${day.level}" title="${day.date}: ${day.count} действий">
+              <div class="day-name">${day.dayName}</div>
+              <div class="day-num">${day.dayNum}</div>
+              <div class="day-count">${day.count}</div>
+            </div>
+          `).join('')}
         </div>
-        <button onclick="this.closest('div[style*=\"position:fixed\"]').remove()" 
-                style="margin-top:16px;padding:10px 20px;background:var(--gradient);color:white;border:none;border-radius:8px;cursor:pointer;">
-          Закрыть
-        </button>
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;align-items:center;">
+          <span style="font-size:12px;color:var(--text-muted);">Меньше</span>
+          <div class="calendar-legend level-0"></div>
+          <div class="calendar-legend level-1"></div>
+          <div class="calendar-legend level-2"></div>
+          <div class="calendar-legend level-3"></div>
+          <span style="font-size:12px;color:var(--text-muted);">Больше</span>
+        </div>
       </div>
     `;
-    
-    document.body.appendChild(modal);
-    modal.querySelector('button').onclick = () => modal.remove();
   },
 
-  _generateCalendarDays(completedDates) {
-    const days = [];
-    const today = new Date();
-    const startDay = new Date(today);
-    startDay.setDate(today.getDate() - 27); // Last 4 weeks
+  renderBadges() {
+    const user = AuthService.getUser();
+    if (!user) return;
+
+    const tasks = DataService.read('tasks', { userId: user.id });
+    const completedTasks = tasks.filter(t => t.status === 'completed').length;
     
-    for (let i = 0; i < 28; i++) {
-      const date = new Date(startDay);
-      date.setDate(startDay.getDate() + i);
-      const dateStr = date.toDateString();
-      const isCompleted = completedDates.includes(dateStr);
-      const isToday = date.toDateString() === today.toDateString();
-      
-      days.push(`
-        <div style="padding:8px 4px;border-radius:4px;
-                   background:${isCompleted ? 'var(--success)' : isToday ? 'var(--primary)' : 'transparent'};
-                   color:${isCompleted || isToday ? 'white' : 'var(--text-main)'};
-                   font-weight:${isToday ? '600' : '400'};">
-          ${date.getDate()}
+    const badges = [
+      { id: 'first_task', name: 'Первый шаг', icon: '🎯', condition: completedTasks >= 1 },
+      { id: 'five_tasks', name: 'Пять задач', icon: '🌟', condition: completedTasks >= 5 },
+      { id: 'ten_tasks', name: 'Десять задач', icon: '🏆', condition: completedTasks >= 10 },
+      { id: 'early_bird', name: 'Ранний пташка', icon: '🌅', condition: completedTasks >= 1 },
+      { id: 'night_owl', name: 'Сова', icon: '🦉', condition: completedTasks >= 1 }
+    ];
+
+    const badgesList = document.getElementById('badgesList');
+    if (badgesList) {
+      badgesList.innerHTML = badges.map(badge => `
+        <div class="badge-item ${badge.condition ? 'unlocked' : 'locked'}">
+          <div class="badge-icon">${badge.icon}</div>
+          <div class="badge-name">${badge.name}</div>
         </div>
-      `);
+      `).join('');
     }
-    return days.join('');
+  },
+
+  renderProgress() {
+    const user = AuthService.getUser();
+    if (!user) return;
+
+    const tasks = DataService.read('tasks', { userId: user.id });
+    const completedTasks = tasks.filter(t => t.status === 'completed').length;
+    const totalTasks = tasks.length;
+    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+    const progressCard = document.getElementById('progressCard');
+    if (progressCard) {
+      progressCard.innerHTML = `
+        <h3 style="margin-bottom:16px;font-size:18px;">📊 Прогресс выполнения</h3>
+        <div class="progress-container">
+          <div class="progress-fill" style="width:${progress}%"></div>
+        </div>
+        <div style="text-align:center;margin-top:8px;color:var(--text-muted);">
+          ${completedTasks} из ${totalTasks} задач выполнено (${Math.round(progress)}%)
+        </div>
+      `;
+    }
   }
 };
 

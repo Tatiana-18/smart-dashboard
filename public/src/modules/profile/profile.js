@@ -1,126 +1,148 @@
 // === 👤 PROFILE MODULE ===
 const ProfileModule = {
   init() {
-    this.loadProfile();
+    this.renderProfile();
     this.setupEventListeners();
+    
+    // ✅ Обновляем аватар при инициализации
+    this.updateProfileAvatar();
   },
 
-  loadProfile() {
+  renderProfile() {
     const user = AuthService.getUser();
-    if (!user) {
-      Router.navigate('login');
-      return;
+    if (!user) return;
+
+    // Обновляем информацию о пользователе
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileAvatar = document.getElementById('profileAvatar');
+    
+    if (profileName) profileName.textContent = user.name;
+    if (profileEmail) profileEmail.textContent = user.email;
+    if (profileAvatar) {
+      const firstLetter = user.name.charAt(0).toUpperCase();
+      profileAvatar.textContent = firstLetter;
     }
 
-    // Update profile display
-    document.getElementById('profileAvatar').textContent = user.name?.[0]?.toUpperCase() || '🦊';
-    document.getElementById('profileName').textContent = user.name;
-    document.getElementById('profileEmail').textContent = user.email;
+    // Рендерим статистику
+    this.renderStats();
+    
+    // Рендерим настройки
+    this.renderSettings();
+  },
 
-    // Load avatar if exists
-    if (user.avatar) {
-      const avatar = document.getElementById('profileAvatar');
-      avatar.textContent = '';
-      avatar.style.backgroundImage = `url(${user.avatar})`;
-      avatar.style.backgroundSize = 'cover';
-    }
+  renderStats() {
+    const user = AuthService.getUser();
+    if (!user) return;
 
-    // Load stats
-    const stats = DataService.getStats(user.id);
     const statsContainer = document.getElementById('profileStats');
-    if (statsContainer) {
-      statsContainer.innerHTML = `
-        <div class="card-title">📊 Моя статистика</div>
-        <div class="stat-row"><span>Всего баллов</span><strong>${user.totalPoints || 0}</strong></div>
-        <div class="stat-row"><span>Уровень</span><strong>${user.level || 1}</strong></div>
-        <div class="stat-row"><span>Задач выполнено</span><strong>${stats.completedTasks}</strong></div>
-        <div class="stat-row"><span>Заметок создано</span><strong>${stats.totalNotes}</strong></div>
-      `;
-    }
+    if (!statsContainer) return;
 
-    // Load settings
+    // Получаем данные из localStorage
+    const tasks = JSON.parse(localStorage.getItem('smartdash_tasks') || '[]');
+    const notes = JSON.parse(localStorage.getItem('smartdash_notes') || '[]');
+    
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const totalPoints = user.totalPoints || 0;
+    const level = user.level || 1;
+
+    statsContainer.innerHTML = `
+      <div class="stat-row">
+        <span>Всего баллов</span>
+        <strong>${totalPoints}</strong>
+      </div>
+      <div class="stat-row">
+        <span>Уровень</span>
+        <strong>${level}</strong>
+      </div>
+      <div class="stat-row">
+        <span>Задач выполнено</span>
+        <strong>${completedTasks}</strong>
+      </div>
+      <div class="stat-row">
+        <span>Заметок создано</span>
+        <strong>${notes.length}</strong>
+      </div>
+    `;
+  },
+
+  renderSettings() {
+    const user = AuthService.getUser();
+    if (!user) return;
+
     const settingsContainer = document.getElementById('profileSettings');
-    if (settingsContainer) {
-      settingsContainer.innerHTML = `
-        <div class="card-title">⚙️ Настройки</div>
-        <div class="setting-item">
-          <span>Уведомления</span>
-          <label class="toggle">
-            <input type="checkbox" ${user.settings?.notifications ? 'checked' : ''} id="notifToggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-item">
-          <span>Тёмная тема</span>
-          <label class="toggle">
-            <input type="checkbox" ${user.settings?.darkTheme ? 'checked' : ''} id="themeToggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      `;
-    }
+    if (!settingsContainer) return;
+
+    const notifications = user.settings?.notifications !== false;
+    const darkTheme = user.settings?.darkTheme || false;
+
+    settingsContainer.innerHTML = `
+      <div class="setting-item">
+        <span>Уведомления</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleNotifications" ${notifications ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-item">
+        <span>Тёмная тема</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleDarkTheme" ${darkTheme ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    `;
+
+    // Добавляем обработчики
+    document.getElementById('toggleNotifications').addEventListener('change', (e) => {
+      AuthService.updateProfile({ 
+        settings: { ...user.settings, notifications: e.target.checked } 
+      });
+      if (window.NotificationService) {
+        NotificationService.show('success', { message: 'Настройки сохранены' });
+      }
+    });
+
+    document.getElementById('toggleDarkTheme').addEventListener('change', (e) => {
+      const newTheme = e.target.checked;
+      AuthService.updateProfile({ 
+        settings: { ...user.settings, darkTheme: newTheme } 
+      });
+      document.body.classList.toggle('dark-theme', newTheme);
+    });
   },
 
   setupEventListeners() {
-    // Edit name
-    document.getElementById('profileName')?.addEventListener('click', () => {
-      const user = AuthService.getUser();
-      const newName = prompt('Ваше имя:', user.name);
-      if (newName && newName !== user.name) {
-        AuthService.updateProfile({ name: newName });
-        this.loadProfile();
-      }
-    });
-
-    // Edit email
-    document.getElementById('profileEmail')?.addEventListener('click', () => {
-      const user = AuthService.getUser();
-      const newEmail = prompt('Email:', user.email);
-      if (newEmail && newEmail !== user.email) {
-        AuthService.updateProfile({ email: newEmail });
-        this.loadProfile();
-      }
-    });
-
-    // Avatar upload
-    document.getElementById('profileAvatar')?.addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            AuthService.updateProfile({ avatar: event.target.result });
-            this.loadProfile();
-          };
-          reader.readAsDataURL(file);
+    // Кнопка выхода
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        // ✅ Только один confirm
+        if (confirm('Вы уверены что хотите выйти из аккаунта?')) {
+          AuthService.logout();
         }
-      };
-      input.click();
-    });
+      });
+    }
+  },
 
-    // Settings toggles
-    document.addEventListener('change', (e) => {
-      if (e.target.id === 'themeToggle') {
-        AuthService.toggleTheme();
+  // ✅ ФУНКЦИЯ ОБНОВЛЕНИЯ АВАТАРА
+  updateProfileAvatar() {
+    const user = AuthService.getUser();
+    if (user && user.name) {
+      const firstLetter = user.name.charAt(0).toUpperCase();
+      const profileBtn = document.getElementById('profileBtn');
+      if (profileBtn) {
+        profileBtn.textContent = firstLetter;
       }
-      if (e.target.id === 'notifToggle') {
-        const user = AuthService.getUser();
-        AuthService.updateProfile({ 
-          settings: { ...user.settings, notifications: e.target.checked } 
-        });
+      
+      // Также обновляем аватар в шапке профиля если есть
+      const profileAvatar = document.getElementById('profileAvatar');
+      if (profileAvatar) {
+        profileAvatar.textContent = firstLetter;
       }
-    });
-
-    // Logout
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-      if (confirm('Выйти из аккаунта?')) {
-        AuthService.logout();
-      }
-    });
+    }
   }
 };
 
+// Экспортируем для использования в других модулях
 window.ProfileModule = ProfileModule;

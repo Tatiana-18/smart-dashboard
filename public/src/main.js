@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (user?.settings?.notifications !== false) {
     NotificationService.requestPermission();
   }
+
+  // Show admin link if user is admin
+  if (AuthService.isAdmin()) {
+    document.getElementById('adminLinkContainer').style.display = 'block';
+  }
   
   console.log('✨ Smart Dashboard initialized!');
 });

@@ -56,10 +56,8 @@ const AuthService = {
     this.currentUser = null;
     localStorage.removeItem('smartdash_current_user');
     
-    // ✅ ПРАВИЛЬНЫЙ ПУТЬ для GitHub Pages (public/ = корень сайта)
-    window.location.href = '/smart-dashboard/index.html';
-    // Или просто:
-    // window.location.href = '/';
+    // ✅ ПРАВИЛЬНЫЙ ПУТЬ для GitHub Pages
+    window.location.href = '/smart-dashboard/';
   },
 
   updateProfile(updates) {
@@ -84,6 +82,39 @@ const AuthService = {
 
   isAuthenticated() {
     return this.currentUser !== null;
+  },
+
+  // ✅ ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА
+  isAdmin() {
+    return this.currentUser && this.currentUser.isAdmin === true;
+  },
+
+  // ✅ УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ (только для админа)
+  deleteUser(userId) {
+    if (!this.isAdmin()) {
+      return { success: false, error: 'Только администратор может удалять пользователей' };
+    }
+    
+    // Нельзя удалить самого себя
+    if (userId === this.currentUser.id) {
+      return { success: false, error: 'Нельзя удалить самого себя' };
+    }
+    
+    const index = this.users.findIndex(u => u.id === userId);
+    if (index !== -1) {
+      this.users.splice(index, 1);
+      this._saveUsers();
+      return { success: true };
+    }
+    return { success: false, error: 'Пользователь не найден' };
+  },
+
+  // ✅ ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (только для админа)
+  getAllUsers() {
+    if (!this.isAdmin()) {
+      return [];
+    }
+    return this.users.map(({ password, ...rest }) => rest);
   },
 
   toggleTheme() {

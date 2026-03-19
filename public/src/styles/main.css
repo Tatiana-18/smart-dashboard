@@ -355,6 +355,7 @@
   display: inline-block;
   width: clamp(72px, 19vw, 84px);
   height: clamp(38px, 11vw, 46px);
+  flex-shrink: 0;  /* ← ДОБАВЬ */
 }
 .toggle input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
@@ -378,6 +379,17 @@
 }
 input:checked + .toggle-slider { background: var(--gradient); }
 input:checked + .toggle-slider:before { transform: translateX(34px); }
+
+/* Контейнер для toggle чтобы не вылезал */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(20px, 6vw, 28px) 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: clamp(18px, 5.5vw, 22px);
+  overflow: hidden;  /* ← ДОБАВЬ */
+}
 
 /* ============================================ */
 /* 📱 MEDIA QUERIES — МОБИЛЬНАЯ ВЕРСИЯ */

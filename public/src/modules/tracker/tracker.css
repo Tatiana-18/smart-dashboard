@@ -16,3 +16,42 @@
 }
 
 .badges::-webkit-scrollbar { display: none; }
+
+.activity-calendar {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px;
+}
+
+.calendar-grid {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.calendar-day {
+  flex: 1;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 8px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.calendar-day.level-0 { background: #e2e8f0; }
+.calendar-day.level-1 { background: #93c5fd; }
+.calendar-day.level-2 { background: #60a5fa; }
+.calendar-day.level-3 { background: #3b82f6; }
+
+.day-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.day-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}

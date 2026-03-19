@@ -56,10 +56,11 @@
     <!-- Tasks Module -->
     <section id="tasks" class="module active">
       <div class="filters">
-        <button class="filter-btn active">Все</button>
-        <button class="filter-btn">🏠 Бытовые</button>
-        <button class="filter-btn">💧 Здоровье</button>
-        <button class="filter-btn">⭐ Привычки</button>
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="household">🏠 Бытовые</button>
+        <button class="filter-btn" data-filter="health">💧 Здоровье</button>
+        <button class="filter-btn" data-filter="habit">⭐ Привычки</button>
+        <button class="filter-btn" data-filter="other">📋 Другое</button>
       </div>
 
       <div id="tasksList"></div>
@@ -96,6 +97,12 @@
       </div>
       <div class="card" id="profileStats"></div>
       <div class="card" id="profileSettings"></div>
+      <!-- Admin Panel Link (only for admins) -->
+      <div id="adminLinkContainer" style="display:none;">
+        <a href="./admin.html" class="btn btn-outline" style="margin:12px auto;display:block;width:calc(100% - 40px);text-align:center;text-decoration:none;">
+          👑 Панель администратора
+        </a>
+      </div>
       <button class="btn btn-outline" id="logoutBtn">Выйти из аккаунта</button>
     </section>
   </div>

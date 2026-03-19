@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#8B5CF6" />
-  <meta name="description" content="Smart Dashboard PWA" />
+  <meta name="description" content="Smart Dashboard PWA - Tasks, Notes and Tracker" />
   
-  <!-- PWA Manifest - ОТНОСИТЕЛЬНЫЙ ПУТЬ -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json" />
   
-  <!-- Icons - ОТНОСИТЕЛЬНЫЙ ПУТЬ -->
+  <!-- Icons -->
   <link rel="icon" type="image/png" href="./favicon.ico" />
   <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
   
@@ -18,9 +18,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Smart Dashboard" />
   
-  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ -->
-  <link rel="stylesheet" href="../src/styles/reset.css" />
+  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ (важно для GitHub Pages) -->
   <link rel="stylesheet" href="../src/styles/variables.css" />
+  <link rel="stylesheet" href="../src/styles/reset.css" />
   <link rel="stylesheet" href="../src/styles/main.css" />
   
   <!-- Module Styles -->
@@ -37,14 +37,15 @@
     <div class="profile-btn" id="profileBtn">Т</div>
   </header>
 
-  <!-- Mascot -->
+  <!-- Mascot (Лисичка 🦊) -->
   <div class="mascot" id="mascot">
     <span class="mascot-emoji">🦊</span>
     <div class="mascot-text">Привет! Готов к новым достижениям?</div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main Content Container -->
   <div class="main-content">
+    <!-- Tasks Module -->
     <section id="tasks" class="module active">
       <div class="filters">
         <button class="filter-btn active">Все</button>
@@ -52,8 +53,11 @@
         <button class="filter-btn">💧 Здоровье</button>
         <button class="filter-btn">⭐ Привычки</button>
       </div>
+
       <div id="tasksList"></div>
+
       <button class="btn" id="addTaskBtn">+ Добавить задачу</button>
+
       <div class="card" id="streakCard">
         <div style="text-align:center;font-weight:600;color:var(--secondary);">
           🔥 СТРИК: 0 дней подряд!
@@ -61,11 +65,13 @@
       </div>
     </section>
 
+    <!-- Notes Module -->
     <section id="notes" class="module">
       <div id="notesList"></div>
       <button class="btn" id="addNoteBtn">+ Новая заметка</button>
     </section>
 
+    <!-- Tracker Module -->
     <section id="tracker" class="module">
       <div class="stats-grid" id="statsGrid"></div>
       <div class="card" id="progressCard"></div>
@@ -73,6 +79,7 @@
       <div id="badgesList" class="badges"></div>
     </section>
 
+    <!-- Profile Module -->
     <section id="profile" class="module">
       <div class="profile-header">
         <div class="profile-avatar" id="profileAvatar">Т</div>
@@ -113,7 +120,7 @@
     </div>
   </nav>
 
-  <!-- Scripts - Core - ОТНОСИТЕЛЬНЫЕ ПУТИ -->
+  <!-- Scripts - Core -->
   <script src="../src/core/router.js"></script>
   <script src="../src/core/authService.js"></script>
   <script src="../src/core/dataService.js"></script>
@@ -137,7 +144,7 @@
   <!-- Main Script -->
   <script src="../src/main.js"></script>
 
-  <!-- Service Worker Registration - ОТНОСИТЕЛЬНЫЙ ПУТЬ -->
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

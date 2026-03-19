@@ -1,24 +1,12 @@
-name: Deploy to GitHub Pages
+name: Deploy Smart Dashboard
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +18,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'  # ← Деплоим ВЕСЬ проект, не только public!
+          path: '.'  # ← Деплоим ВЕСЬ проект!
 
       - name: Deploy to GitHub Pages
         id: deployment

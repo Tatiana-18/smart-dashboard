@@ -25,6 +25,21 @@ document.addEventListener('DOMContentLoaded', () => {
   NotesModule.init();
   TrackerModule.init();
   ProfileModule.init();
+
+  // После инициализации AuthService
+if (AuthService.isAuthenticated()) {
+  // Show admin link if user is admin
+  const adminLinkContainer = document.getElementById('adminLinkContainer');
+  if (adminLinkContainer && AuthService.isAdmin()) {
+    adminLinkContainer.style.display = 'block';
+    console.log('[Main] Admin link shown');
+  }
+  
+  // Update profile avatar
+  if (window.ProfileModule) {
+    ProfileModule.updateProfileAvatar();
+  }
+}
   
   // Setup logout
   document.getElementById('logoutBtn')?.addEventListener('click', () => {

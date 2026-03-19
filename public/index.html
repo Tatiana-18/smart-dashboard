@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#8B5CF6" />
   <meta name="description" content="Smart Dashboard PWA - Tasks, Notes and Tracker" />
   
-  <!-- PWA Manifest -->
+  <!-- PWA Manifest (в той же папке) -->
   <link rel="manifest" href="./manifest.json" />
   
-  <!-- Icons -->
+  <!-- Icons (в той же папке или подпапке) -->
   <link rel="icon" type="image/png" href="./favicon.ico" />
   <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
   
@@ -18,9 +18,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Smart Dashboard" />
   
-  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ (важно для GitHub Pages) -->
-  <link rel="stylesheet" href="../src/styles/variables.css" />
+  <!-- Styles - ОТНОСИТЕЛЬНЫЕ ПУТИ (src на уровне выше) -->
   <link rel="stylesheet" href="../src/styles/reset.css" />
+  <link rel="stylesheet" href="../src/styles/variables.css" />
   <link rel="stylesheet" href="../src/styles/main.css" />
   
   <!-- Module Styles -->
@@ -120,7 +120,7 @@
     </div>
   </nav>
 
-  <!-- Scripts - Core -->
+  <!-- Scripts - Core (src на уровне выше) -->
   <script src="../src/core/router.js"></script>
   <script src="../src/core/authService.js"></script>
   <script src="../src/core/dataService.js"></script>

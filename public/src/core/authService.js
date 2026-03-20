@@ -4,62 +4,59 @@ const AuthService = {
   users: [],
 
   init() {
-    console.log('[AuthService] Initializing...');
-    console.log('[AuthService] localStorage keys:', Object.keys(localStorage));
+    console.log('[AuthService] Init - Loading data from localStorage...');
     
-    // Load users from localStorage
-    try {
-      const savedUsers = localStorage.getItem('smartdash_users');
-      console.log('[AuthService] Raw saved users:', savedUsers);
-      
-      if (savedUsers) {
+    // Load users
+    const savedUsers = localStorage.getItem('smartdash_users');
+    if (savedUsers) {
+      try {
         this.users = JSON.parse(savedUsers);
-        console.log('[AuthService] ✅ Loaded users:', this.users.length);
-        this.users.forEach(u => console.log('[AuthService]   -', u.email, u.name));
-      } else {
+        console.log('[AuthService] ✅ Loaded', this.users.length, 'users');
+        this.users.forEach(u => {
+          console.log('  -', u.email, '| Name:', u.name, '| ID:', u.id);
+        });
+      } catch (e) {
+        console.error('[AuthService] ❌ Error parsing users:', e);
         this.users = [];
-        console.log('[AuthService] ⚠️ No users found in localStorage');
       }
-    } catch (e) {
-      console.error('[AuthService] ❌ Error loading users:', e);
+    } else {
       this.users = [];
+      console.log('[AuthService] ⚠️ No users in localStorage');
     }
     
-    // Check current session
-    try {
-      const savedUser = localStorage.getItem('smartdash_current_user');
-      console.log('[AuthService] Raw saved current user:', savedUser);
-      
-      if (savedUser) {
+    // Load current session
+    const savedUser = localStorage.getItem('smartdash_current_user');
+    if (savedUser) {
+      try {
         this.currentUser = JSON.parse(savedUser);
-        console.log('[AuthService] ✅ Current user:', this.currentUser?.email, this.currentUser?.name);
-      } else {
-        console.log('[AuthService] ⚠️ No current user session');
+        console.log('[AuthService] ✅ Current session:', this.currentUser?.email);
+      } catch (e) {
+        console.error('[AuthService] ❌ Error parsing current user:', e);
+        this.currentUser = null;
       }
-    } catch (e) {
-      console.error('[AuthService] ❌ Error loading current user:', e);
-      this.currentUser = null;
     }
   },
 
   register(name, email, password, isAdmin = false) {
     console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
     
-    // Normalize email
+    // ✅ НОРМАЛИЗАЦИЯ EMAIL (нижний регистр + trim)
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
     
-    // Check if user exists
+    // Проверка существующего пользователя (case-insensitive)
     const existingUser = this.users.find(u => u.email === normalizedEmail);
     if (existingUser) {
       console.log('[AuthService] ❌ User already exists:', normalizedEmail);
       return { success: false, error: 'Пользователь с таким email уже существует' };
     }
     
+    // Создание нового пользователя
     const newUser = {
       id: 'user_' + Date.now(),
-      name: name.trim(),
-      email: normalizedEmail,
-      password: password,
+      name: normalizedName,
+      email: normalizedEmail,  // ✅ ВСЕГДА нижний регистр
+      password: password,  // В реальном проекте нужно хешировать!
       isAdmin: isAdmin || false,
       totalPoints: 0,
       level: 1,
@@ -74,8 +71,8 @@ const AuthService = {
     this.users.push(newUser);
     this._saveUsers();
     
-    console.log('[AuthService] ✅ User registered successfully:', newUser);
-    console.log('[AuthService] Total users now:', this.users.length);
+    console.log('[AuthService] ✅ User registered:', newUser);
+    console.log('[AuthService] Total users:', this.users.length);
     
     return { success: true, user: newUser };
   },
@@ -83,18 +80,22 @@ const AuthService = {
   login(email, password) {
     console.log('[AuthService] 🔑 Login attempt:', { email });
     
+    // ✅ НОРМАЛИЗАЦИЯ EMAIL (нижний регистр + trim)
     const normalizedEmail = email.trim().toLowerCase();
     
     console.log('[AuthService] Searching for email:', normalizedEmail);
-    console.log('[AuthService] All users:', this.users.map(u => u.email));
+    console.log('[AuthService] All users in DB:', this.users.map(u => u.email));
     
+    // Поиск пользователя (case-insensitive)
     const user = this.users.find(u => {
-      const match = u.email === normalizedEmail && u.password === password;
-      console.log('[AuthService] Checking user:', u.email, 'Match:', match);
-      return match;
+      const emailMatch = u.email === normalizedEmail;
+      const passwordMatch = u.password === password;
+      console.log('  Checking:', u.email, '| Email match:', emailMatch, '| Password match:', passwordMatch);
+      return emailMatch && passwordMatch;
     });
     
     if (user) {
+      // Создание сессии БЕЗ пароля
       this.currentUser = { 
         id: user.id,
         name: user.name,
@@ -106,16 +107,18 @@ const AuthService = {
         settings: user.settings
       };
       
+      // Сохранение сессии
       localStorage.setItem('smartdash_current_user', JSON.stringify(this.currentUser));
       
       console.log('[AuthService] ✅ Login successful:', this.currentUser);
-      console.log('[AuthService] Saved to localStorage:', localStorage.getItem('smartdash_current_user'));
+      console.log('[AuthService] Session saved to localStorage');
       
       return { success: true, user: this.currentUser };
     }
     
     console.log('[AuthService] ❌ Login failed - user not found or wrong password');
     console.log('[AuthService] Available users:', this.users.map(u => u.email));
+    console.log('[AuthService] You entered:', normalizedEmail);
     
     return { success: false, error: 'Неверный email или пароль' };
   },
@@ -137,6 +140,7 @@ const AuthService = {
     
     this.currentUser = { ...this.currentUser, ...updates };
     
+    // Обновление в массиве users
     const index = this.users.findIndex(u => u.id === this.currentUser.id);
     if (index !== -1) {
       this.users[index] = { ...this.users[index], ...updates };
@@ -197,10 +201,10 @@ const AuthService = {
 
   _saveUsers() {
     try {
+      // Удаление паролей перед сохранением
       const safeUsers = this.users.map(({ password, ...rest }) => rest);
       localStorage.setItem('smartdash_users', JSON.stringify(safeUsers));
       console.log('[AuthService] 💾 Users saved to localStorage:', safeUsers.length);
-      console.log('[AuthService] Saved users:', safeUsers.map(u => u.email));
     } catch (e) {
       console.error('[AuthService] ❌ Error saving users:', e);
     }

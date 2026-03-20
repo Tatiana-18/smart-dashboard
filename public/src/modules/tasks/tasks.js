@@ -44,8 +44,7 @@ const TasksModule = {
       tasksList.addEventListener('click', (e) => {
         const checkbox = e.target.closest('.checkbox');
         if (checkbox) {
-          const taskId = checkbox.dataset.id;
-          this.toggleTask(taskId);
+          this.toggleTask(checkbox.dataset.id);
         }
         
         const editBtn = e.target.closest('.edit-btn');
@@ -61,10 +60,15 @@ const TasksModule = {
     }
   },
 
-  // ✅ БАЛЛЫ НЕ НАЧИСЛЯЮТСЯ ПРИ СОЗДАНИИ
+  // ✅ БАЛЛЫ НЕ НАЧИСЛЯЮТСЯ - ТОЛЬКО СОЗДАНИЕ ЗАДАЧИ
   addTask() {
+    console.log('[TasksModule] Creating new task...');
+    
     const title = prompt('Название задачи:');
-    if (!title || !title.trim()) return;
+    if (!title || !title.trim()) {
+      console.log('[TasksModule] ❌ Empty title, canceled');
+      return;
+    }
     
     const categoryPrompt = prompt(
       'Выберите категорию (введите номер):\n\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
@@ -79,18 +83,22 @@ const TasksModule = {
     };
     
     const type = categoryMap[categoryPrompt] || 'other';
-    const points = parseInt(prompt('Баллы за выполнение:', '10')) || 10;
+    const pointsInput = prompt('Баллы за выполнение:', '10');
+    const points = parseInt(pointsInput) || 10;
     
     const user = AuthService.getUser();
     const task = {
       userId: user.id,
       title: title.trim(),
       type,
-      status: 'pending',  // ← pending = баллов НЕТ
+      status: 'pending',  // ← pending = НЕТ БАЛЛОВ
       points,
       date: new Date().toISOString(),
       completedAt: null
     };
+    
+    console.log('[TasksModule] Task created:', task);
+    console.log('[TasksModule] Status:', task.status, '- Points will NOT be added');
     
     DataService.create('tasks', task);
     this.loadTasks();
@@ -99,18 +107,26 @@ const TasksModule = {
       TrackerModule.update();
     }
     
-    // ✅ НЕТ уведомления о баллах при создании!
+    // ✅ НЕТ УВЕДОМЛЕНИЯ О БАЛЛАХ!
+    console.log('[TasksModule] ✅ Task created without points');
   },
 
   // ✅ БАЛЛЫ НАЧИСЛЯЮТСЯ ТОЛЬКО ЗДЕСЬ
   toggleTask(id) {
+    console.log('[TasksModule] Toggling task:', id);
+    
     const allTasks = DataService.read('tasks');
     const task = allTasks.find(t => t.id === id);
     
-    if (!task) return;
+    if (!task) {
+      console.log('[TasksModule] ❌ Task not found');
+      return;
+    }
     
     const oldStatus = task.status;
     const newStatus = oldStatus === 'completed' ? 'pending' : 'completed';
+    
+    console.log('[TasksModule] Status change:', oldStatus, '→', newStatus);
     
     DataService.update('tasks', id, { 
       status: newStatus,
@@ -119,8 +135,9 @@ const TasksModule = {
     
     const user = AuthService.getUser();
     
-    // ✅ НАЧИСЛЕНИЕ ПРИ ВЫПОЛНЕНИИ
+    // ✅ НАЧИСЛЕНИЕ БАЛЛОВ ПРИ ВЫПОЛНЕНИИ
     if (newStatus === 'completed') {
+      console.log('[TasksModule] ✅ COMPLETED - Adding', task.points, 'points');
       user.totalPoints = (user.totalPoints || 0) + task.points;
       AuthService.updateProfile({ totalPoints: user.totalPoints });
       
@@ -130,6 +147,7 @@ const TasksModule = {
     }
     // ✅ ВЫЧИТАНИЕ ПРИ ОТМЕНЕ
     else if (oldStatus === 'completed') {
+      console.log('[TasksModule] ❌ CANCELED - Removing', task.points, 'points');
       user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);
       AuthService.updateProfile({ totalPoints: user.totalPoints });
       
@@ -138,6 +156,8 @@ const TasksModule = {
           message: `-${task.points} баллов` 
         });
       }
+    } else {
+      console.log('[TasksModule] Task created/edited - NO points change');
     }
     
     this.loadTasks();
@@ -164,7 +184,6 @@ const TasksModule = {
     const task = DataService.read('tasks').find(t => t.id === id);
     if (!task) return;
     
-    // ✅ ВЫЧИТАНИЕ ПРИ УДАЛЕНИИ ВЫПОЛНЕННОЙ
     if (task.status === 'completed') {
       const user = AuthService.getUser();
       user.totalPoints = Math.max(0, (user.totalPoints || 0) - task.points);

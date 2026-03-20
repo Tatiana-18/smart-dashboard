@@ -12,7 +12,7 @@ const AuthService = {
         this.users = JSON.parse(savedUsers);
         console.log('[AuthService] ✅ Loaded', this.users.length, 'users');
         this.users.forEach(u => {
-          console.log('  - Email:', u.email, '| Name:', u.name, '| ID:', u.id, '| Password:', u.password);
+          console.log('  - Email:', u.email, '| Name:', u.name, '| ID:', u.id);
         });
       } catch (e) {
         console.error('[AuthService] ❌ Error parsing users:', e);
@@ -36,18 +36,11 @@ const AuthService = {
   },
 
   register(name, email, password, isAdmin = false) {
-    console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
+    console.log('[AuthService] 📝 Register attempt');
     
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedName = name.trim();
     const normalizedPassword = password.trim();
-    
-    console.log('[AuthService] Normalized:', { 
-      email: normalizedEmail, 
-      name: normalizedName, 
-      password: normalizedPassword,
-      passwordLength: normalizedPassword.length
-    });
     
     const existingUser = this.users.find(u => u.email === normalizedEmail);
     if (existingUser) {
@@ -59,7 +52,7 @@ const AuthService = {
       id: 'user_' + Date.now(),
       name: normalizedName,
       email: normalizedEmail,
-      password: normalizedPassword,
+      password: normalizedPassword,  // ✅ СОХРАНЯЕМ пароль
       isAdmin: isAdmin || false,
       totalPoints: 0,
       level: 1,
@@ -74,55 +67,19 @@ const AuthService = {
     this.users.push(newUser);
     this._saveUsers();
     
-    console.log('[AuthService] ✅ User registered:', {
-      email: newUser.email,
-      password: newUser.password,
-      passwordLength: newUser.password.length
-    });
-    
+    console.log('[AuthService] ✅ User registered');
     return { success: true, user: newUser };
   },
 
   login(email, password) {
-    console.log('[AuthService] 🔑 Login attempt:', { 
-      email: email, 
-      password: password,
-      passwordLength: password.length 
-    });
+    console.log('[AuthService] 🔑 Login attempt');
     
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedPassword = password.trim();
     
-    console.log('[AuthService] Normalized login:', { 
-      email: normalizedEmail, 
-      password: normalizedPassword,
-      passwordLength: normalizedPassword.length 
-    });
-    
-    console.log('[AuthService] Searching for email:', normalizedEmail);
-    console.log('[AuthService] All users in DB:', this.users.map(u => ({ 
-      email: u.email, 
-      savedPassword: u.password,
-      length: u.password.length 
-    })));
-    
     const user = this.users.find(u => {
       const emailMatch = u.email === normalizedEmail;
       const passwordMatch = u.password === normalizedPassword;
-      
-      console.log('[AuthService] Checking user:', {
-        savedEmail: u.email,
-        savedPassword: u.password,
-        savedPasswordLength: u.password.length,
-        inputEmail: normalizedEmail,
-        inputPassword: normalizedPassword,
-        inputPasswordLength: normalizedPassword.length,
-        emailMatch: emailMatch,
-        passwordMatch: passwordMatch,
-        emailMatchType: typeof u.email === typeof normalizedEmail,
-        passwordMatchType: typeof u.password === typeof normalizedPassword
-      });
-      
       return emailMatch && passwordMatch;
     });
     
@@ -140,13 +97,11 @@ const AuthService = {
       
       localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
       
-      console.log('[AuthService] ✅ Login successful:', this.currentUser);
+      console.log('[AuthService] ✅ Login successful');
       return { success: true, user: this.currentUser };
     }
     
-    console.log('[AuthService] ❌ Login failed - user not found or wrong password');
-    console.log('[AuthService] Available users:', this.users.map(u => u.email));
-    
+    console.log('[AuthService] ❌ Login failed');
     return { success: false, error: 'Неверный email или пароль' };
   },
 
@@ -158,12 +113,7 @@ const AuthService = {
   },
 
   updateProfile(updates) {
-    if (!this.currentUser) {
-      console.log('[AuthService] ⚠️ No current user to update');
-      return false;
-    }
-    
-    console.log('[AuthService] 🔄 Updating profile:', updates);
+    if (!this.currentUser) return false;
     
     this.currentUser = { ...this.currentUser, ...updates };
     
@@ -174,8 +124,6 @@ const AuthService = {
     }
     
     localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
-    
-    console.log('[AuthService] ✅ Profile updated');
     return true;
   },
 
@@ -209,6 +157,7 @@ const AuthService = {
     return { success: false, error: 'Пользователь не найден' };
   },
 
+  // ✅ ВОЗВРАЩАЕМ БЕЗ ПАРОЛЕЙ (для админ-панели)
   getAllUsers() {
     if (!this.isAdmin()) {
       return [];
@@ -225,11 +174,11 @@ const AuthService = {
     return newTheme;
   },
 
+  // ✅ СОХРАНЯЕМ ВСЕ ПОЛЯ включая password
   _saveUsers() {
     try {
-      const safeUsers = this.users.map(({ password, ...rest }) => rest);
-      localStorage.setItem(Config.storageKeys.USERS, JSON.stringify(safeUsers));
-      console.log('[AuthService] 💾 Users saved to localStorage:', safeUsers.length);
+      localStorage.setItem(Config.storageKeys.USERS, JSON.stringify(this.users));
+      console.log('[AuthService] 💾 Users saved');
     } catch (e) {
       console.error('[AuthService] ❌ Error saving users:', e);
     }

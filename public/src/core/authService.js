@@ -7,7 +7,7 @@ const AuthService = {
     console.log('[AuthService] Init - Loading data from localStorage...');
     
     // Load users
-    const savedUsers = localStorage.getItem('smartdash_users');
+    const savedUsers = localStorage.getItem(Config.storageKeys.USERS);
     if (savedUsers) {
       try {
         this.users = JSON.parse(savedUsers);
@@ -25,7 +25,7 @@ const AuthService = {
     }
     
     // Load current session
-    const savedUser = localStorage.getItem('smartdash_current_user');
+    const savedUser = localStorage.getItem(Config.storageKeys.CURRENT_USER);
     if (savedUser) {
       try {
         this.currentUser = JSON.parse(savedUser);
@@ -40,7 +40,7 @@ const AuthService = {
   register(name, email, password, isAdmin = false) {
     console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
     
-    // ✅ НОРМАЛИЗАЦИЯ EMAIL (нижний регистр + trim)
+    // ✅ НОРМАЛИЗАЦИЯ: нижний регистр + trim
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedName = name.trim();
     
@@ -56,7 +56,7 @@ const AuthService = {
       id: 'user_' + Date.now(),
       name: normalizedName,
       email: normalizedEmail,  // ✅ ВСЕГДА нижний регистр
-      password: password,  // В реальном проекте нужно хешировать!
+      password: password,
       isAdmin: isAdmin || false,
       totalPoints: 0,
       level: 1,
@@ -80,13 +80,13 @@ const AuthService = {
   login(email, password) {
     console.log('[AuthService] 🔑 Login attempt:', { email });
     
-    // ✅ НОРМАЛИЗАЦИЯ EMAIL (нижний регистр + trim)
+    // ✅ НОРМАЛИЗАЦИЯ: нижний регистр + trim
     const normalizedEmail = email.trim().toLowerCase();
     
     console.log('[AuthService] Searching for email:', normalizedEmail);
     console.log('[AuthService] All users in DB:', this.users.map(u => u.email));
     
-    // Поиск пользователя (case-insensitive)
+    // Поиск пользователя (case-insensitive email + точный пароль)
     const user = this.users.find(u => {
       const emailMatch = u.email === normalizedEmail;
       const passwordMatch = u.password === password;
@@ -108,7 +108,7 @@ const AuthService = {
       };
       
       // Сохранение сессии
-      localStorage.setItem('smartdash_current_user', JSON.stringify(this.currentUser));
+      localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
       
       console.log('[AuthService] ✅ Login successful:', this.currentUser);
       console.log('[AuthService] Session saved to localStorage');
@@ -126,7 +126,7 @@ const AuthService = {
   logout() {
     console.log('[AuthService] 🚪 Logout');
     this.currentUser = null;
-    localStorage.removeItem('smartdash_current_user');
+    localStorage.removeItem(Config.storageKeys.CURRENT_USER);
     window.location.href = '/smart-dashboard/';
   },
 
@@ -147,7 +147,7 @@ const AuthService = {
       this._saveUsers();
     }
     
-    localStorage.setItem('smartdash_current_user', JSON.stringify(this.currentUser));
+    localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
     
     console.log('[AuthService] ✅ Profile updated');
     return true;
@@ -161,10 +161,12 @@ const AuthService = {
     return this.currentUser !== null;
   },
 
+  // ✅ ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА
   isAdmin() {
     return this.currentUser && this.currentUser.isAdmin === true;
   },
 
+  // ✅ УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ (только для админа)
   deleteUser(userId) {
     if (!this.isAdmin()) {
       return { success: false, error: 'Только администратор может удалять пользователей' };
@@ -183,6 +185,7 @@ const AuthService = {
     return { success: false, error: 'Пользователь не найден' };
   },
 
+  // ✅ ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (только для админа)
   getAllUsers() {
     if (!this.isAdmin()) {
       return [];
@@ -199,11 +202,12 @@ const AuthService = {
     return newTheme;
   },
 
+  // ✅ СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЕЙ В localStorage
   _saveUsers() {
     try {
       // Удаление паролей перед сохранением
       const safeUsers = this.users.map(({ password, ...rest }) => rest);
-      localStorage.setItem('smartdash_users', JSON.stringify(safeUsers));
+      localStorage.setItem(Config.storageKeys.USERS, JSON.stringify(safeUsers));
       console.log('[AuthService] 💾 Users saved to localStorage:', safeUsers.length);
     } catch (e) {
       console.error('[AuthService] ❌ Error saving users:', e);
@@ -211,4 +215,5 @@ const AuthService = {
   }
 };
 
+// Экспортируем для использования в других модулях
 window.AuthService = AuthService;

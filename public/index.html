@@ -138,14 +138,15 @@
     </div>
   </nav>
 
-  <!-- Scripts - Core -->
-  <script src="./src/core/router.js"></script>
+      <!-- Scripts - Core (СТРОГО ВАЖНЫЙ ПОРЯДОК!) -->
+  <script src="./src/core/config.js"></script>
+  <script src="./src/core/notifications.js"></script>
   <script src="./src/core/authService.js"></script>
   <script src="./src/core/dataService.js"></script>
   <script src="./src/core/cacheService.js"></script>
-  <script src="./src/core/notifications.js"></script>
   <script src="./src/core/uiContainer.js"></script>
   <script src="./src/core/mascot.js"></script>
+  <script src="./src/core/router.js"></script>
   
   <!-- Scripts - Modules -->
   <script src="./src/modules/tasks/tasksDummyData.js"></script>
@@ -154,7 +155,6 @@
   <script src="./src/modules/notes/notesDummyData.js"></script>
   <script src="./src/modules/notes/notes.js"></script>
   <script src="./src/modules/notes/notesUI.js"></script>
-  <script src="./src/modules/tracker/dummyLeaderboard.js"></script>
   <script src="./src/modules/tracker/tracker.js"></script>
   <script src="./src/modules/tracker/trackerUI.js"></script>
   <script src="./src/modules/profile/profile.js"></script>

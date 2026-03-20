@@ -6,17 +6,12 @@
   <meta name="theme-color" content="#8B5CF6" />
   <meta name="description" content="Smart Dashboard - Admin Panel" />
   
-  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json" />
-  
-  <!-- Icons -->
   <link rel="icon" type="image/png" href="./favicon.ico" />
   <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
   
-  <!-- Base href for GitHub Pages -->
   <base href="/smart-dashboard/">
   
-  <!-- Styles -->
   <link rel="stylesheet" href="./src/styles/reset.css" />
   <link rel="stylesheet" href="./src/styles/variables.css" />
   <link rel="stylesheet" href="./src/styles/main.css" />
@@ -106,14 +101,6 @@
       color: var(--text-muted);
       margin-bottom: 8px;
     }
-    .user-meta {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
     .user-role {
       display: inline-block;
       padding: 4px 12px;
@@ -141,10 +128,6 @@
       flex-shrink: 0;
       margin-left: 16px;
     }
-    .btn-delete:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
     .current-user {
       padding: 12px 20px;
       background: #e2e8f0;
@@ -156,24 +139,18 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="logo">👑 Admin Panel</div>
     <div class="profile-btn" id="profileBtn">A</div>
   </header>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Stats -->
     <div id="adminStats"></div>
-    
-    <!-- User List -->
     <div id="adminUserList"></div>
   </div>
 
-  <!-- Bottom Navigation -->
   <nav class="nav-bar">
-    <div class="nav-item" data-target="tasks" onclick="window.location.href='./index.html'">
+    <div class="nav-item" onclick="window.location.href='./index.html'">
       <svg class="nav-icon" viewBox="0 0 24 24">
         <path d="M16 12V4H8v8c0 2.21-1.79 4-4 4v2h4v4h8v-4h4v-2c-2.21 0-4-1.79-4-4zm-6 0V6h4v6c0 1.1-.9 2-2 2s-2-.9-2-2z"/>
       </svg>
@@ -181,24 +158,22 @@
     </div>
   </nav>
 
-  <!-- Scripts -->
+  <script src="./src/core/config.js"></script>
+  <script src="./src/core/notifications.js"></script>
   <script src="./src/core/authService.js"></script>
   <script src="./src/core/dataService.js"></script>
-  <script src="./src/core/notifications.js"></script>
   <script src="./src/modules/admin/admin.js"></script>
   
   <script>
-    // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       AuthService.init();
       
-      // Check if user is admin
       if (!AuthService.isAdmin()) {
+        alert('Доступ запрещён!');
         window.location.href = '/smart-dashboard/';
         return;
       }
       
-      // Update avatar
       const user = AuthService.getUser();
       if (user) {
         const profileBtn = document.getElementById('profileBtn');
@@ -207,7 +182,6 @@
         }
       }
       
-      // Init admin module
       AdminModule.init();
     });
   </script>

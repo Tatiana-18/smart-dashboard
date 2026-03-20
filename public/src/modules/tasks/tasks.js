@@ -64,60 +64,52 @@ const TasksModule = {
 
   // ✅ СОЗДАНИЕ ЗАДАЧИ - БЕЗ НАЧИСЛЕНИЯ БАЛЛОВ
   addTask() {
-    console.log('[TasksModule] ➕ Creating task...');
-    
-    const title = prompt('Название задачи:');
-    if (!title || !title.trim()) {
-      console.log('[TasksModule] ❌ Empty title');
-      return;
-    }
-    
-    const categoryPrompt = prompt(
-      'Выберите категорию (введите номер):\n\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
-      '4'
-    );
-    
-    const categoryMap = {
-      '1': 'household',
-      '2': 'health',
-      '3': 'habit',
-      '4': 'other'
-    };
-    
-    const type = categoryMap[categoryPrompt] || 'other';
-    const pointsInput = prompt('Баллы за выполнение:', '10');
-    const points = parseInt(pointsInput) || 10;
-    
-    const user = AuthService.getUser();
-    
-    // ✅ ВАЖНО: status = 'pending' (НЕ completed!)
-    const task = {
-      userId: user.id,
-      title: title.trim(),
-      type,
-      status: 'pending',  // ← pending = баллов НЕТ
-      points,
-      date: new Date().toISOString(),
-      completedAt: null
-    };
-    
-    console.log('[TasksModule] Task created:', {
-      title: task.title,
-      status: task.status,  // ← должен быть 'pending'
-      points: task.points,
-      willAddPoints: false  // ← НЕТ баллов при создании!
-    });
-    
-    DataService.create('tasks', task);
-    this.loadTasks();
-    
-    if (window.TrackerModule) {
-      TrackerModule.update();
-    }
-    
-    console.log('[TasksModule] ✅ Task created - NO points added (status=pending)');
-    console.log('[TasksModule] Current user points:', AuthService.getUser().totalPoints);
-  },
+  console.log('[TasksModule] ➕ Creating task...');
+  
+  const title = prompt('Название задачи:');
+  if (!title || !title.trim()) return;
+  
+  const categoryPrompt = prompt(
+    'Выберите категорию (введите номер):\n\n1️⃣ Бытовые\n2️⃣ Здоровье\n3️⃣ Привычки\n4️⃣ Другое',
+    '4'
+  );
+  
+  const categoryMap = {
+    '1': 'household',
+    '2': 'health',
+    '3': 'habit',
+    '4': 'other'
+  };
+  
+  const type = categoryMap[categoryPrompt] || 'other';
+  const points = parseInt(prompt('Баллы за выполнение:', '10')) || 10;
+  
+  const user = AuthService.getUser();
+  
+  // ✅ ВАЖНО: status = 'pending'
+  const task = {
+    userId: user.id,
+    title: title.trim(),
+    type,
+    status: 'pending',  // ← pending = НЕТ БАЛЛОВ
+    points,
+    date: new Date().toISOString(),
+    completedAt: null
+  };
+  
+  console.log('[TasksModule] Task created with status:', task.status);
+  console.log('[TasksModule] Points before:', user.totalPoints);
+  
+  DataService.create('tasks', task);
+  this.loadTasks();
+  
+  if (window.TrackerModule) {
+    TrackerModule.update();
+  }
+  
+  console.log('[TasksModule] Points after creation:', user.totalPoints);
+  console.log('[TasksModule] NO points added at creation!');
+},
 
   // ✅ ВЫПОЛНЕНИЕ ЗАДАЧИ - НАЧИСЛЕНИЕ БАЛЛОВ
   toggleTask(id) {

@@ -50,7 +50,7 @@ if (AuthService.isAuthenticated()) {
   
   // Request notification permission
   if (user?.settings?.notifications !== false) {
-    NotificationService.requestPermission();
+    
   }
 
   // Show admin link if user is admin

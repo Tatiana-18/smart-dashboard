@@ -38,90 +38,81 @@ const AuthService = {
   },
 
   register(name, email, password, isAdmin = false) {
-    console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
-    
-    // ✅ НОРМАЛИЗАЦИЯ: нижний регистр + trim
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedName = name.trim();
-    
-    // Проверка существующего пользователя (case-insensitive)
-    const existingUser = this.users.find(u => u.email === normalizedEmail);
-    if (existingUser) {
-      console.log('[AuthService] ❌ User already exists:', normalizedEmail);
-      return { success: false, error: 'Пользователь с таким email уже существует' };
+  console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
+  
+  // ✅ НОРМАЛИЗАЦИЯ
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedName = name.trim();
+  const normalizedPassword = password.trim();  // ✅ ОБРЕЗАЕМ ПРОБЕЛЫ!
+  
+  // Проверка существующего пользователя
+  const existingUser = this.users.find(u => u.email === normalizedEmail);
+  if (existingUser) {
+    console.log('[AuthService] ❌ User already exists:', normalizedEmail);
+    return { success: false, error: 'Пользователь с таким email уже существует' };
+  }
+  
+  const newUser = {
+    id: 'user_' + Date.now(),
+    name: normalizedName,
+    email: normalizedEmail,
+    password: normalizedPassword,  // ✅ Сохраняем обрезанный пароль
+    isAdmin: isAdmin || false,
+    totalPoints: 0,
+    level: 1,
+    avatar: null,
+    createdAt: new Date().toISOString(),
+    settings: { 
+      notifications: true, 
+      darkTheme: false 
     }
-    
-    // Создание нового пользователя
-    const newUser = {
-      id: 'user_' + Date.now(),
-      name: normalizedName,
-      email: normalizedEmail,  // ✅ ВСЕГДА нижний регистр
-      password: password,
-      isAdmin: isAdmin || false,
-      totalPoints: 0,
-      level: 1,
-      avatar: null,
-      createdAt: new Date().toISOString(),
-      settings: { 
-        notifications: true, 
-        darkTheme: false 
-      }
+  };
+  
+  this.users.push(newUser);
+  this._saveUsers();
+  
+  console.log('[AuthService] ✅ User registered:', newUser);
+  return { success: true, user: newUser };
+},
+
+login(email, password) {
+  console.log('[AuthService] 🔑 Login attempt:', { email });
+  
+  // ✅ НОРМАЛИЗАЦИЯ
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPassword = password.trim();  // ✅ ОБРЕЗАЕМ ПРОБЕЛЫ!
+  
+  console.log('[AuthService] Searching for email:', normalizedEmail);
+  console.log('[AuthService] All users in DB:', this.users.map(u => u.email));
+  
+  const user = this.users.find(u => {
+    const emailMatch = u.email === normalizedEmail;
+    const passwordMatch = u.password === normalizedPassword;  // ✅ Сравниваем обрезанные
+    console.log('  Checking:', u.email, '| Email match:', emailMatch, '| Password match:', passwordMatch);
+    return emailMatch && passwordMatch;
+  });
+  
+  if (user) {
+    this.currentUser = { 
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      totalPoints: user.totalPoints,
+      level: user.level,
+      avatar: user.avatar,
+      settings: user.settings
     };
     
-    this.users.push(newUser);
-    this._saveUsers();
+    localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
     
-    console.log('[AuthService] ✅ User registered:', newUser);
-    console.log('[AuthService] Total users:', this.users.length);
-    
-    return { success: true, user: newUser };
-  },
-
-  login(email, password) {
-    console.log('[AuthService] 🔑 Login attempt:', { email });
-    
-    // ✅ НОРМАЛИЗАЦИЯ: нижний регистр + trim
-    const normalizedEmail = email.trim().toLowerCase();
-    
-    console.log('[AuthService] Searching for email:', normalizedEmail);
-    console.log('[AuthService] All users in DB:', this.users.map(u => u.email));
-    
-    // Поиск пользователя (case-insensitive email + точный пароль)
-    const user = this.users.find(u => {
-      const emailMatch = u.email === normalizedEmail;
-      const passwordMatch = u.password === password;
-      console.log('  Checking:', u.email, '| Email match:', emailMatch, '| Password match:', passwordMatch);
-      return emailMatch && passwordMatch;
-    });
-    
-    if (user) {
-      // Создание сессии БЕЗ пароля
-      this.currentUser = { 
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        totalPoints: user.totalPoints,
-        level: user.level,
-        avatar: user.avatar,
-        settings: user.settings
-      };
-      
-      // Сохранение сессии
-      localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
-      
-      console.log('[AuthService] ✅ Login successful:', this.currentUser);
-      console.log('[AuthService] Session saved to localStorage');
-      
-      return { success: true, user: this.currentUser };
-    }
-    
-    console.log('[AuthService] ❌ Login failed - user not found or wrong password');
-    console.log('[AuthService] Available users:', this.users.map(u => u.email));
-    console.log('[AuthService] You entered:', normalizedEmail);
-    
-    return { success: false, error: 'Неверный email или пароль' };
-  },
+    console.log('[AuthService] ✅ Login successful:', this.currentUser);
+    return { success: true, user: this.currentUser };
+  }
+  
+  console.log('[AuthService] ❌ Login failed - user not found or wrong password');
+  return { success: false, error: 'Неверный email или пароль' };
+},
 
   logout() {
     console.log('[AuthService] 🚪 Logout');

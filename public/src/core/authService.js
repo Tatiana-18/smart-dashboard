@@ -6,14 +6,13 @@ const AuthService = {
   init() {
     console.log('[AuthService] Init - Loading data from localStorage...');
     
-    // Load users
     const savedUsers = localStorage.getItem(Config.storageKeys.USERS);
     if (savedUsers) {
       try {
         this.users = JSON.parse(savedUsers);
         console.log('[AuthService] ✅ Loaded', this.users.length, 'users');
         this.users.forEach(u => {
-          console.log('  -', u.email, '| Name:', u.name, '| ID:', u.id);
+          console.log('  - Email:', u.email, '| Name:', u.name, '| ID:', u.id, '| Password:', u.password);
         });
       } catch (e) {
         console.error('[AuthService] ❌ Error parsing users:', e);
@@ -24,7 +23,6 @@ const AuthService = {
       console.log('[AuthService] ⚠️ No users in localStorage');
     }
     
-    // Load current session
     const savedUser = localStorage.getItem(Config.storageKeys.CURRENT_USER);
     if (savedUser) {
       try {
@@ -38,81 +36,119 @@ const AuthService = {
   },
 
   register(name, email, password, isAdmin = false) {
-  console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
-  
-  // ✅ НОРМАЛИЗАЦИЯ
-  const normalizedEmail = email.trim().toLowerCase();
-  const normalizedName = name.trim();
-  const normalizedPassword = password.trim();  // ✅ ОБРЕЗАЕМ ПРОБЕЛЫ!
-  
-  // Проверка существующего пользователя
-  const existingUser = this.users.find(u => u.email === normalizedEmail);
-  if (existingUser) {
-    console.log('[AuthService] ❌ User already exists:', normalizedEmail);
-    return { success: false, error: 'Пользователь с таким email уже существует' };
-  }
-  
-  const newUser = {
-    id: 'user_' + Date.now(),
-    name: normalizedName,
-    email: normalizedEmail,
-    password: normalizedPassword,  // ✅ Сохраняем обрезанный пароль
-    isAdmin: isAdmin || false,
-    totalPoints: 0,
-    level: 1,
-    avatar: null,
-    createdAt: new Date().toISOString(),
-    settings: { 
-      notifications: true, 
-      darkTheme: false 
+    console.log('[AuthService] 📝 Register attempt:', { name, email, isAdmin });
+    
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
+    const normalizedPassword = password.trim();
+    
+    console.log('[AuthService] Normalized:', { 
+      email: normalizedEmail, 
+      name: normalizedName, 
+      password: normalizedPassword,
+      passwordLength: normalizedPassword.length
+    });
+    
+    const existingUser = this.users.find(u => u.email === normalizedEmail);
+    if (existingUser) {
+      console.log('[AuthService] ❌ User already exists:', normalizedEmail);
+      return { success: false, error: 'Пользователь с таким email уже существует' };
     }
-  };
-  
-  this.users.push(newUser);
-  this._saveUsers();
-  
-  console.log('[AuthService] ✅ User registered:', newUser);
-  return { success: true, user: newUser };
-},
-
-login(email, password) {
-  console.log('[AuthService] 🔑 Login attempt:', { email });
-  
-  // ✅ НОРМАЛИЗАЦИЯ
-  const normalizedEmail = email.trim().toLowerCase();
-  const normalizedPassword = password.trim();  // ✅ ОБРЕЗАЕМ ПРОБЕЛЫ!
-  
-  console.log('[AuthService] Searching for email:', normalizedEmail);
-  console.log('[AuthService] All users in DB:', this.users.map(u => u.email));
-  
-  const user = this.users.find(u => {
-    const emailMatch = u.email === normalizedEmail;
-    const passwordMatch = u.password === normalizedPassword;  // ✅ Сравниваем обрезанные
-    console.log('  Checking:', u.email, '| Email match:', emailMatch, '| Password match:', passwordMatch);
-    return emailMatch && passwordMatch;
-  });
-  
-  if (user) {
-    this.currentUser = { 
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      totalPoints: user.totalPoints,
-      level: user.level,
-      avatar: user.avatar,
-      settings: user.settings
+    
+    const newUser = {
+      id: 'user_' + Date.now(),
+      name: normalizedName,
+      email: normalizedEmail,
+      password: normalizedPassword,
+      isAdmin: isAdmin || false,
+      totalPoints: 0,
+      level: 1,
+      avatar: null,
+      createdAt: new Date().toISOString(),
+      settings: { 
+        notifications: true, 
+        darkTheme: false 
+      }
     };
     
-    localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
+    this.users.push(newUser);
+    this._saveUsers();
     
-    console.log('[AuthService] ✅ Login successful:', this.currentUser);
-    return { success: true, user: this.currentUser };
-  }
-  
-  console.log('[AuthService] ❌ Login failed - user not found or wrong password');
-  return { success: false, error: 'Неверный email или пароль' };
-},
+    console.log('[AuthService] ✅ User registered:', {
+      email: newUser.email,
+      password: newUser.password,
+      passwordLength: newUser.password.length
+    });
+    
+    return { success: true, user: newUser };
+  },
+
+  login(email, password) {
+    console.log('[AuthService] 🔑 Login attempt:', { 
+      email: email, 
+      password: password,
+      passwordLength: password.length 
+    });
+    
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+    
+    console.log('[AuthService] Normalized login:', { 
+      email: normalizedEmail, 
+      password: normalizedPassword,
+      passwordLength: normalizedPassword.length 
+    });
+    
+    console.log('[AuthService] Searching for email:', normalizedEmail);
+    console.log('[AuthService] All users in DB:', this.users.map(u => ({ 
+      email: u.email, 
+      savedPassword: u.password,
+      length: u.password.length 
+    })));
+    
+    const user = this.users.find(u => {
+      const emailMatch = u.email === normalizedEmail;
+      const passwordMatch = u.password === normalizedPassword;
+      
+      console.log('[AuthService] Checking user:', {
+        savedEmail: u.email,
+        savedPassword: u.password,
+        savedPasswordLength: u.password.length,
+        inputEmail: normalizedEmail,
+        inputPassword: normalizedPassword,
+        inputPasswordLength: normalizedPassword.length,
+        emailMatch: emailMatch,
+        passwordMatch: passwordMatch,
+        emailMatchType: typeof u.email === typeof normalizedEmail,
+        passwordMatchType: typeof u.password === typeof normalizedPassword
+      });
+      
+      return emailMatch && passwordMatch;
+    });
+    
+    if (user) {
+      this.currentUser = { 
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        totalPoints: user.totalPoints,
+        level: user.level,
+        avatar: user.avatar,
+        settings: user.settings
+      };
+      
+      localStorage.setItem(Config.storageKeys.CURRENT_USER, JSON.stringify(this.currentUser));
+      
+      console.log('[AuthService] ✅ Login successful:', this.currentUser);
+      return { success: true, user: this.currentUser };
+    }
+    
+    console.log('[AuthService] ❌ Login failed - user not found or wrong password');
+    console.log('[AuthService] Available users:', this.users.map(u => u.email));
+    
+    return { success: false, error: 'Неверный email или пароль' };
+  },
 
   logout() {
     console.log('[AuthService] 🚪 Logout');
@@ -131,7 +167,6 @@ login(email, password) {
     
     this.currentUser = { ...this.currentUser, ...updates };
     
-    // Обновление в массиве users
     const index = this.users.findIndex(u => u.id === this.currentUser.id);
     if (index !== -1) {
       this.users[index] = { ...this.users[index], ...updates };
@@ -152,12 +187,10 @@ login(email, password) {
     return this.currentUser !== null;
   },
 
-  // ✅ ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА
   isAdmin() {
     return this.currentUser && this.currentUser.isAdmin === true;
   },
 
-  // ✅ УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ (только для админа)
   deleteUser(userId) {
     if (!this.isAdmin()) {
       return { success: false, error: 'Только администратор может удалять пользователей' };
@@ -176,7 +209,6 @@ login(email, password) {
     return { success: false, error: 'Пользователь не найден' };
   },
 
-  // ✅ ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (только для админа)
   getAllUsers() {
     if (!this.isAdmin()) {
       return [];
@@ -193,10 +225,8 @@ login(email, password) {
     return newTheme;
   },
 
-  // ✅ СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЕЙ В localStorage
   _saveUsers() {
     try {
-      // Удаление паролей перед сохранением
       const safeUsers = this.users.map(({ password, ...rest }) => rest);
       localStorage.setItem(Config.storageKeys.USERS, JSON.stringify(safeUsers));
       console.log('[AuthService] 💾 Users saved to localStorage:', safeUsers.length);
@@ -206,5 +236,4 @@ login(email, password) {
   }
 };
 
-// Экспортируем для использования в других модулях
 window.AuthService = AuthService;

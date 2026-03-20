@@ -113,20 +113,36 @@ const ProfileModule = {
       fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
         if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-          NotificationService.show(NotificationService.types.ERROR, {
-            message: 'Файл слишком большой (макс. 5 MB)'
-          });
-          fileInput.value = '';
-          return;
-        }
+        fileInput.value = '';
 
         const reader = new FileReader();
         reader.onload = (e) => {
-          const base64 = e.target.result;
-          console.log('[ProfileModule] Avatar read, length:', base64.length);
-          this._saveAvatar(base64);
+          // === Сжатие через canvas ===
+          const img = new Image();
+          img.onload = () => {
+            const MAX = 200; // итоговый размер аватара — 200x200 px
+            const canvas = document.createElement('canvas');
+            canvas.width = MAX;
+            canvas.height = MAX;
+            const ctx = canvas.getContext('2d');
+
+            // Вырезаем квадрат по центру (crop)
+            const side = Math.min(img.width, img.height);
+            const sx = (img.width - side) / 2;
+            const sy = (img.height - side) / 2;
+            ctx.drawImage(img, sx, sy, side, side, 0, 0, MAX, MAX);
+
+            // JPEG 0.75 качество — итого ~10-30 КБ вместо 3 МБ
+            const compressed = canvas.toDataURL('image/jpeg', 0.75);
+            console.log('[ProfileModule] Compressed avatar length:', compressed.length);
+            this._saveAvatar(compressed);
+          };
+          img.onerror = () => {
+            NotificationService.show(NotificationService.types.ERROR, {
+              message: 'Не удалось загрузить изображение'
+            });
+          };
+          img.src = e.target.result;
         };
         reader.onerror = () => {
           NotificationService.show(NotificationService.types.ERROR, {
@@ -134,8 +150,6 @@ const ProfileModule = {
           });
         };
         reader.readAsDataURL(file);
-        // сбрасываем value чтобы можно было выбрать тот же файл повторно
-        fileInput.value = '';
       });
     }
 

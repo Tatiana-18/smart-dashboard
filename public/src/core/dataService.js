@@ -75,11 +75,6 @@ const DataService = {
     this.collections[collection].push(newItem);
     this._save(collection);
     
-    // Log activity for points
-    if (item.points) {
-      this._logActivity(`${collection}_created`, item.points);
-    }
-    
     return newItem;
   },
 

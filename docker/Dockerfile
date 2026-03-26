@@ -3,8 +3,8 @@ FROM nginx:alpine
 # Копируем nginx конфиг
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Копируем статику
-COPY public/ /usr/share/nginx/html/public/
+# Копируем ВСЮ папку public/ как корень сайта
+COPY public/ /usr/share/nginx/html/
 
 EXPOSE 3000
 

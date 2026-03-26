@@ -4,137 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#8B5CF6" />
-  <meta name="description" content="Smart Dashboard - Admin Panel" />
-  
+
   <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" type="image/png" href="./favicon.ico" />
-  <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
-  
-  <base href="/smart-dashboard/">
-  
+  <link rel="icon" type="image/png" href="./icons/icon-192x192.png" />
+
   <link rel="stylesheet" href="./src/styles/reset.css" />
   <link rel="stylesheet" href="./src/styles/variables.css" />
   <link rel="stylesheet" href="./src/styles/main.css" />
-  
+
   <title>Smart Dashboard — Админ-панель</title>
-  
+
   <style>
-    .admin-header {
-      padding: 24px 20px;
-      background: var(--surface);
-      border-bottom: 2px solid #f1f5f9;
-      margin-bottom: 24px;
-    }
-    .admin-header h2 {
-      margin: 0;
-      font-size: 24px;
-      color: var(--primary);
-    }
     .admin-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      padding: 0 20px 24px;
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px; padding: 0 20px 24px;
     }
     .admin-stat-card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 20px var(--shadow);
+      background: var(--surface); border-radius: 16px; padding: 20px;
+      text-align: center; box-shadow: 0 4px 20px var(--shadow);
     }
     .admin-stat-card .stat-value {
-      font-size: 36px;
-      font-weight: 800;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
+      font-size: 36px; font-weight: 800;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; margin-bottom: 8px;
     }
-    .admin-stat-card .stat-label {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-    .admin-users-list {
-      padding: 0 20px 100px;
-    }
+    .admin-stat-card .stat-label { font-size: 14px; color: var(--text-muted); }
     .admin-user-card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: var(--surface); border-radius: 16px; padding: 20px;
+      margin: 0 20px 16px; box-shadow: 0 4px 20px var(--shadow);
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .user-info {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      flex: 1;
-    }
+    .user-info { display: flex; gap: 16px; align-items: center; flex: 1; }
     .user-avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--gradient);
-      color: white;
-      font-size: 24px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--gradient); color: white;
+      font-size: 24px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .user-details {
-      flex: 1;
-      min-width: 0;
-    }
-    .user-name {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .user-email {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
+    .user-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .user-email { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
     .user-role {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
+      display: inline-block; padding: 4px 12px;
+      border-radius: 12px; font-size: 12px; font-weight: 600;
     }
-    .user-role.admin {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-      color: white;
-    }
-    .user-role.user {
-      background: #e2e8f0;
-      color: var(--text-muted);
-    }
+    .user-role.admin { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; }
+    .user-role.user { background: #e2e8f0; color: var(--text-muted); }
     .btn-delete {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-      margin-left: 16px;
+      background: linear-gradient(135deg, #ef4444, #dc2626); color: white;
+      border: none; padding: 12px 20px; border-radius: 12px;
+      font-weight: 600; cursor: pointer; flex-shrink: 0; margin-left: 16px;
     }
     .current-user {
-      padding: 12px 20px;
-      background: #e2e8f0;
-      border-radius: 12px;
-      color: var(--text-muted);
-      font-weight: 600;
-      flex-shrink: 0;
+      padding: 12px 20px; background: #e2e8f0;
+      border-radius: 12px; color: var(--text-muted); font-weight: 600; flex-shrink: 0;
     }
   </style>
 </head>
@@ -152,7 +74,7 @@
   <nav class="nav-bar">
     <div class="nav-item" onclick="window.location.href='./index.html'">
       <svg class="nav-icon" viewBox="0 0 24 24">
-        <path d="M16 12V4H8v8c0 2.21-1.79 4-4 4v2h4v4h8v-4h4v-2c-2.21 0-4-1.79-4-4zm-6 0V6h4v6c0 1.1-.9 2-2 2s-2-.9-2-2z"/>
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
       </svg>
       <span>Назад</span>
     </div>
@@ -163,25 +85,23 @@
   <script src="./src/core/authService.js"></script>
   <script src="./src/core/dataService.js"></script>
   <script src="./src/modules/admin/admin.js"></script>
-  
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       AuthService.init();
-      
+
       if (!AuthService.isAdmin()) {
         alert('Доступ запрещён!');
-        window.location.href = '/smart-dashboard/';
+        window.location.href = './index.html';
         return;
       }
-      
+
       const user = AuthService.getUser();
       if (user) {
         const profileBtn = document.getElementById('profileBtn');
-        if (profileBtn) {
-          profileBtn.textContent = user.name.charAt(0).toUpperCase();
-        }
+        if (profileBtn) profileBtn.textContent = user.name.charAt(0).toUpperCase();
       }
-      
+
       AdminModule.init();
     });
   </script>

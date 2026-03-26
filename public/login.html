@@ -5,31 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#8B5CF6" />
   <meta name="description" content="Smart Dashboard — Вход и регистрация" />
-  
-  <!-- PWA Manifest -->
+
   <link rel="manifest" href="./manifest.json" />
-  
-  <!-- Icons -->
-  <link rel="icon" type="image/png" href="./favicon.ico" />
+  <link rel="icon" type="image/png" href="./icons/icon-192x192.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
-  
-  <!-- iOS Support -->
+
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Smart Dashboard" />
-  
-  <!-- Base href for GitHub Pages -->
-  <base href="/smart-dashboard/">
-  
-  <!-- Styles -->
+
   <link rel="stylesheet" href="./src/styles/reset.css" />
   <link rel="stylesheet" href="./src/styles/variables.css" />
   <link rel="stylesheet" href="./src/styles/main.css" />
-  
+
   <title>Smart Dashboard — Вход</title>
-  
+
   <style>
-    /* === 🎨 AUTH STYLES === */
     .auth-container {
       min-height: 100vh;
       display: flex;
@@ -37,9 +28,8 @@
       justify-content: center;
       padding: 20px;
       background: var(--bg);
-      padding-bottom: 100px;
+      padding-bottom: 40px;
     }
-    
     .auth-card {
       background: var(--surface);
       border-radius: 20px;
@@ -49,7 +39,6 @@
       box-shadow: 0 8px 32px var(--shadow);
       border-left: 4px solid var(--primary);
     }
-    
     .auth-title {
       text-align: center;
       font-size: clamp(24px, 7vw, 28px);
@@ -60,17 +49,8 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    
-    .form-group {
-      position: relative;
-    }
-    
+    .auth-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-group { position: relative; }
     .form-group input {
       width: 100%;
       padding: 14px 40px 14px 14px;
@@ -82,12 +62,7 @@
       transition: border-color 0.2s;
       box-sizing: border-box;
     }
-    
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-    
+    .form-group input:focus { outline: none; border-color: var(--primary); }
     .form-group label {
       position: absolute;
       left: 14px;
@@ -98,123 +73,34 @@
       pointer-events: none;
       transition: all 0.2s;
     }
-    
     .form-group input:focus + label,
     .form-group input:not(:placeholder-shown) + label {
-      top: 0;
-      left: 12px;
-      font-size: 12px;
-      background: var(--surface);
-      padding: 0 6px;
-      color: var(--primary);
+      top: 0; left: 12px; font-size: 12px;
+      background: var(--surface); padding: 0 6px; color: var(--primary);
     }
-    
     .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 18px;
-      padding: 4px;
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; font-size: 18px; padding: 4px;
     }
-    
-    .toggle-password:hover {
-      color: var(--primary);
-    }
-    
     .auth-btn {
-      width: 100%;
-      padding: 16px;
-      margin: 8px 0;
-      background: var(--gradient);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s;
+      width: 100%; padding: 16px; margin: 8px 0;
+      background: var(--gradient); color: white; border: none;
+      border-radius: 12px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s, transform 0.2s;
     }
-    
-    .auth-btn:hover {
-      opacity: 0.95;
-      transform: translateY(-1px);
-    }
-    
-    .auth-btn:active {
-      transform: translateY(0);
-    }
-    
-    .auth-switch {
-      text-align: center;
-      margin-top: 20px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-    
+    .auth-btn:hover { opacity: 0.95; transform: translateY(-1px); }
+    .auth-btn:active { transform: translateY(0); }
+    .auth-switch { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 14px; }
     .auth-switch button {
-      background: none;
-      border: none;
-      color: var(--primary);
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
+      background: none; border: none; color: var(--primary);
+      font-weight: 600; cursor: pointer; font-size: 14px;
     }
-    
-    .auth-switch button:hover {
-      text-decoration: underline;
-    }
-    
-    .error {
-      color: var(--error);
-      font-size: 14px;
-      text-align: center;
-      margin: 8px 0;
-      min-height: 20px;
-    }
-    
-    .success {
-      color: var(--success);
-      font-size: 14px;
-      text-align: center;
-      margin: 8px 0;
-    }
-    
-    .mascot-small {
-      text-align: center;
-      font-size: 48px;
-      margin-bottom: 16px;
-      animation: bounce 2s infinite;
-    }
-    
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    
-    .admin-note {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 8px;
-      font-style: italic;
-    }
-    
-    /* Dark theme support */
-    body.dark-theme .auth-card {
-      background: var(--surface);
-      border-color: var(--primary);
-    }
-    
-    body.dark-theme .form-group input {
-      background: var(--bg);
-      border-color: #374151;
-      color: var(--text-main);
-    }
+    .error { color: var(--error, #ef4444); font-size: 14px; text-align: center; margin: 8px 0; min-height: 20px; }
+    .success { color: var(--success); font-size: 14px; text-align: center; margin: 8px 0; }
+    .mascot-small { text-align: center; font-size: 48px; margin-bottom: 16px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .admin-note { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 8px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -222,73 +108,60 @@
     <div class="auth-card">
       <div class="mascot-small">🦊</div>
       <h1 class="auth-title">Smart Dashboard</h1>
-      
+
       <form class="auth-form" id="authForm">
-        <!-- Name field (only for register) -->
         <div class="form-group" id="nameGroup" style="display: none;">
           <input type="text" id="name" placeholder=" " autocomplete="name">
           <label for="name">Ваше имя</label>
         </div>
-        
-        <!-- Email field -->
+
         <div class="form-group">
           <input type="email" id="email" placeholder=" " required autocomplete="email">
           <label for="email">Email</label>
         </div>
-        
-        <!-- Password field with toggle -->
+
         <div class="form-group">
           <input type="password" id="password" placeholder=" " required autocomplete="current-password">
           <label for="password">Пароль</label>
-          <button type="button" class="toggle-password" id="togglePassword" aria-label="Показать пароль">👁️</button>
+          <button type="button" class="toggle-password" id="togglePassword">👁️</button>
         </div>
-        
-        <!-- Admin password (only for register) -->
+
         <div class="form-group" id="adminGroup" style="display: none;">
           <input type="password" id="adminPassword" placeholder=" " autocomplete="off">
           <label for="adminPassword">Код администратора</label>
         </div>
-        
+
         <div id="message" class="error"></div>
-        
         <button type="submit" class="auth-btn" id="submitBtn">Войти</button>
       </form>
-      
+
       <div class="auth-switch">
         <span id="switchText">Нет аккаунта?</span>
         <button id="switchBtn" type="button">Зарегистрироваться</button>
       </div>
-      
+
       <div class="admin-note" id="adminNote" style="display: none;">
         💡 Для регистрации администратора введите код: <strong>123456</strong>
       </div>
     </div>
   </div>
 
-  <!-- Core Scripts - ПРАВИЛЬНЫЙ ПОРЯДОК -->
   <script src="./src/core/config.js"></script>
   <script src="./src/core/notifications.js"></script>
   <script src="./src/core/authService.js"></script>
   <script src="./src/core/mascot.js"></script>
-  
+
   <script>
-    // === 🔐 AUTH PAGE LOGIC ===
     document.addEventListener('DOMContentLoaded', () => {
-      // Initialize services
-      if (typeof NotificationService !== 'undefined') {
-        NotificationService.init();
-      }
-      if (typeof AuthService !== 'undefined') {
-        AuthService.init();
-      }
-      
-      // Redirect if already logged in
+      if (typeof NotificationService !== 'undefined') NotificationService.init();
+      if (typeof AuthService !== 'undefined') AuthService.init();
+
+      // Redirect если уже залогинен
       if (typeof AuthService !== 'undefined' && AuthService.isAuthenticated()) {
-        window.location.href = '/smart-dashboard/index.html';
+        window.location.href = './index.html';
         return;
       }
-      
-      // DOM Elements
+
       const form = document.getElementById('authForm');
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
@@ -302,122 +175,66 @@
       const switchBtn = document.getElementById('switchBtn');
       const switchText = document.getElementById('switchText');
       const togglePassword = document.getElementById('togglePassword');
-      
+
       let isRegister = false;
-      
-      // Toggle password visibility
+
       togglePassword.addEventListener('click', () => {
         const type = passwordInput.type === 'password' ? 'text' : 'password';
         passwordInput.type = type;
         togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
       });
-      
-      // Switch between login/register
+
       switchBtn.addEventListener('click', (e) => {
         e.preventDefault();
         isRegister = !isRegister;
-        
-        // Toggle name field
         nameGroup.style.display = isRegister ? 'block' : 'none';
         nameInput.required = isRegister;
-        
-        // Toggle admin fields
         adminGroup.style.display = isRegister ? 'block' : 'none';
         adminNote.style.display = isRegister ? 'block' : 'none';
-        
-        // Update UI
         submitBtn.textContent = isRegister ? 'Зарегистрироваться' : 'Войти';
         switchText.textContent = isRegister ? 'Уже есть аккаунт?' : 'Нет аккаунта?';
         switchBtn.textContent = isRegister ? 'Войти' : 'Зарегистрироваться';
         messageEl.textContent = '';
-        messageEl.className = 'error';
-        
-        // Update mascot
-        if (typeof MascotModule !== 'undefined') {
-          MascotModule.update(isRegister ? 'default' : 'default');
-        }
       });
-      
-      // Form submission
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         messageEl.textContent = '';
-        messageEl.className = 'error';
-        
+
         const email = emailInput.value.trim();
         const password = passwordInput.value;
-        
-        // Validation
-        if (!email || !password) {
-          messageEl.textContent = 'Заполните все поля';
-          return;
-        }
-        
+
+        if (!email || !password) { messageEl.textContent = 'Заполните все поля'; return; }
+
         if (isRegister) {
           const name = nameInput.value.trim();
           const adminCode = adminPasswordInput.value;
-          
-          if (!name) {
-            messageEl.textContent = 'Введите ваше имя';
-            return;
-          }
-          
-          // Admin registration check
-          if (adminCode && adminCode !== '123456') {
-            messageEl.textContent = 'Неверный код администратора';
-            return;
-          }
-          
-          // Register
-          if (typeof AuthService !== 'undefined') {
-            const result = AuthService.register(name, email, password, adminCode === '123456');
-            
-            if (result.success) {
-              messageEl.textContent = '✅ Регистрация успешна!';
-              messageEl.className = 'success';
-              
-              if (typeof NotificationService !== 'undefined') {
-                NotificationService.show('success', { points: 10 });
-              }
-              
-              setTimeout(() => {
-                window.location.href = '/smart-dashboard/index.html';
-              }, 1500);
-            } else {
-              messageEl.textContent = result.error || 'Ошибка регистрации';
-            }
+
+          if (!name) { messageEl.textContent = 'Введите ваше имя'; return; }
+          if (adminCode && adminCode !== '123456') { messageEl.textContent = 'Неверный код администратора'; return; }
+
+          const result = AuthService.register(name, email, password, adminCode === '123456');
+          if (result.success) {
+            messageEl.textContent = '✅ Регистрация успешна!';
+            messageEl.className = 'success';
+            setTimeout(() => { window.location.href = './index.html'; }, 1500);
+          } else {
+            messageEl.textContent = result.error || 'Ошибка регистрации';
           }
         } else {
-          // Login
-          if (typeof AuthService !== 'undefined') {
-            const result = AuthService.login(email, password);
-            
-            if (result.success) {
-              messageEl.textContent = '✅ Добро пожаловать!';
-              messageEl.className = 'success';
-              
-              if (typeof MascotModule !== 'undefined') {
-                MascotModule.update('success');
-              }
-              
-              setTimeout(() => {
-                window.location.href = '/smart-dashboard/index.html';
-              }, 1000);
-            } else {
-              messageEl.textContent = result.error || 'Неверный email или пароль';
-              
-              if (typeof MascotModule !== 'undefined') {
-                MascotModule.update('sad');
-              }
-            }
+          const result = AuthService.login(email, password);
+          if (result.success) {
+            messageEl.textContent = '✅ Добро пожаловать!';
+            messageEl.className = 'success';
+            setTimeout(() => { window.location.href = './index.html'; }, 1000);
+          } else {
+            messageEl.textContent = result.error || 'Неверный email или пароль';
+            if (typeof MascotModule !== 'undefined') MascotModule.update('sad');
           }
         }
       });
-      
-      // Initialize mascot
-      if (typeof MascotModule !== 'undefined') {
-        MascotModule.init();
-      }
+
+      if (typeof MascotModule !== 'undefined') MascotModule.init();
     });
   </script>
 </body>

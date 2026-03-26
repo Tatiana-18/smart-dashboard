@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  # ================================
+  # FRONTEND — nginx
+  # Отдаёт статику и проксирует /api → backend
+  # ================================
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: smart-dashboard-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+
+  # ================================
+  # BACKEND — Node.js + Supabase Auth
+  # Обрабатывает /api/register и /api/login
+  # ================================
+  backend:
+    image: node:20-alpine
+    container_name: smart-dashboard-backend
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      sh -c "npm install &&
+             node server/server.js"
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

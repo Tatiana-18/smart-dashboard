@@ -5,7 +5,7 @@ const AdminModule = {
     
     if (!AuthService.isAdmin()) {
       console.log('[AdminModule] ❌ Not admin, redirecting');
-      window.location.href = '/smart-dashboard/';
+      window.location.href = '../';
       return;
     }
     

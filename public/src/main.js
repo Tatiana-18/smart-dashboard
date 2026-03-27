@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Check authentication
   if (!AuthService.isAuthenticated() && !window.location.href.includes('login.html')) {
-    window.location.href = '../login.html';
+    window.location.href = '/smart-dashboard/login.html';
     return;
   }
   
